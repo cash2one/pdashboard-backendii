@@ -13,6 +13,7 @@
     "url": "http://gitlab.baidu.com/hanbingfeng/pdashboard-backend"
   },
   "dependencies": {
-    "q": "^1.2.0"
+    "q": "^1.2.0",
+    "yargs": "^3.8.0"
   }
 }
