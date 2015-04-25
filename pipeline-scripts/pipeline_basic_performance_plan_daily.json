@@ -1,0 +1,7 @@
+[
+    {
+        "step": "step_get_item",
+        "arguments": [ "fengchao_feview_performance_rawlog_speedup3_day", "-o", "-l", "logs/" ]
+    }
+]
+
