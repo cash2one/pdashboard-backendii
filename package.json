@@ -13,6 +13,7 @@
     "url": "http://gitlab.baidu.com/hanbingfeng/pdashboard-backend"
   },
   "dependencies": {
+    "event-stream": "^3.3.0",
     "jasmine": "^2.2.1",
     "q": "^1.2.0",
     "underscore": "^1.8.3",
