@@ -26,7 +26,10 @@ try {
             require('./lib/context').set(key, value);
         }
     }
-    require('./lib/pipeline').execute(pipelineJson);
+    require('./lib/pipeline').execute(pipelineJson).reject(function (err) {
+        console.error(err);
+        process.exit(-1);
+    });
 }
 catch (ex) {
     console.error('root exception, ', ex);

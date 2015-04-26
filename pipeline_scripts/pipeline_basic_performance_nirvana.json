@@ -1,0 +1,10 @@
+[
+    {
+        "step": "step_get_item_and_open"
+    },
+    {
+        "step": "test/step_test_print"
+    }
+
+]
+
