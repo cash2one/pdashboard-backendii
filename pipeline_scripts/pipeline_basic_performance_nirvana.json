@@ -1,10 +1,34 @@
 [
+    [
+        {
+            "step": "step_get_item_and_open"
+        },
+        {
+            "step": "step_split"
+        },
+        {
+            "step": "step_extract_log_json_and_userid"
+        },
+        {
+            "step": "step_extract_basic_performance_data"
+        },
+        {
+            "step": "step_put_in_context"
+        }
+    ],
     {
-        "step": "step_get_item_and_open"
+        "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_stat_list",
+        "arguments": [ 100000 ]
+    },
+    {
+        "step": "step_stat_pretty_print",
+        "arguments": [ [ "performance_static", "performance_materialList", "performance_accountTree", "performance_ao_manual" ] ]
     },
     {
         "step": "test/step_test_print"
     }
-
 ]
 

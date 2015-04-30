@@ -24,10 +24,10 @@ try {
     if (argv.o != null) {
         u.each(JSON.parse(argv.o), function (value, key) {
             require('./lib/context').set(key, value);
-        }
+        });
     }
-    require('./lib/pipeline').execute(pipelineJson).reject(function (err) {
-        console.error(err);
+    require('./lib/pipeline').execute(pipelineJson).fail(function (err) {
+        console.error('pipeline execute error, ', err);
         process.exit(-1);
     });
 }
