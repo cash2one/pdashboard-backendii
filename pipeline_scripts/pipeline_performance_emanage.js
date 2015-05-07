@@ -1,0 +1,50 @@
+[
+    [
+        {
+            "step": "step_open_file"
+        },
+        {
+            "step": "step_split"
+        },
+        {
+            "step": "step_parse_json"
+        },
+        {
+            "step": "step_compute_emanage_performance_data"
+        },
+        {
+            "step": "step_put_in_context"
+        }
+    ],
+    {
+        "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_stat_list",
+        "arguments": [ 1000000 ]
+    },
+    {
+        "step": "step_stat_pretty_print",
+        "arguments": [ [
+            "performance_static",
+            "performance_emanage_action_enter",
+            "performance_emanage_action_render",
+            "performance_emanage_action_rendered",
+            "performance_emanage_sidebar_processed",
+            "performance_emanage_coreword_is_stable",
+            "performance_emanage_sidebar_AccountInfo_rendered",
+            "performance_emanage_sidebar_ActDataView_rendered",
+            "performance_emanage_sidebar_Coupon_rendered",
+            "performance_emanage_sidebar_MarketTrend_rendered",
+            "performance_emanage_sidebar_NoVPunish_rendered",
+            "performance_emanage_sidebar_AccountScore_rendered",
+            "performance_emanage_sidebar_LxbStatus_rendered",
+            "performance_emanage_aopkg_rendered",
+            "performance_emanage_aopkg_enter"
+        ] ]
+    },
+    {
+        "step": "test/step_test_print"
+    }
+]
+
