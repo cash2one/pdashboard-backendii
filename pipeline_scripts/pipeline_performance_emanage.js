@@ -1,7 +1,7 @@
 [
     [
         {
-            "step": "step_open_file"
+            "step": "step_get_item_and_open"
         },
         {
             "step": "step_split"
@@ -22,6 +22,15 @@
     {
         "step": "step_stat_list",
         "arguments": [ 1000000 ]
+    },
+    {
+        "step": "step_generate_record_timestamp_day"
+    },
+    {
+        "step": "step_clean_by_record_timestamp"
+    },
+    {
+        "step": "step_put_in_db"
     },
     {
         "step": "step_stat_pretty_print",
@@ -45,6 +54,9 @@
     },
     {
         "step": "test/step_test_print"
+    },
+    {
+        "step": "step_remove_file"
     }
 ]
 

@@ -27,7 +27,7 @@ try {
         });
     }
     require('./lib/pipeline').execute(pipelineJson).fail(function (err) {
-        console.error('pipeline execute error, ', err);
+        console.error('pipeline execute error, ', err.stack);
         process.exit(-1);
     });
 }
