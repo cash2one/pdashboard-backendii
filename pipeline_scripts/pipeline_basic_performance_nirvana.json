@@ -24,11 +24,23 @@
         "arguments": [ 100000 ]
     },
     {
+        "step": "step_generate_record_timestamp_day"
+    },
+    {
+        "step": "step_clean_by_record_timestamp"
+    },
+    {
+        "step": "step_put_in_db"
+    },
+    {
         "step": "step_stat_pretty_print",
         "arguments": [ [ "performance_static", "performance_materialList", "performance_accountTree", "performance_ao_manual" ] ]
     },
     {
         "step": "test/step_test_print"
+    },
+    {
+        "step": "step_remove_file"
     }
 ]
 
