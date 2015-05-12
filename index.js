@@ -32,7 +32,7 @@ try {
     });
 }
 catch (ex) {
-    console.error('root exception, ', ex);
+    console.error('root exception, ', ex.stack);
     process.exit(-1);
 }
 
