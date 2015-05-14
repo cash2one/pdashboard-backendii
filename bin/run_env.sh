@@ -18,17 +18,26 @@ export STDERR_LOG=$HOME/pdashboard-stderr.log
 #     LOG_NAME log平台上的名字
 #     DB_URL 连接mongodb的url，默认为mongodb://localhost:27017/pdashboard
 #     DB_COLLECTION_NAME mongodb上存放数据的collection名字
+#     START 开始日期
 ##
 function call_get_item {
     date >> ${STDOUT_LOG}
     date >> ${STDERR_LOG}
-    
+
+    get_item_args="[\"${LOG_NAME}\","
+
+    if [[ ! -z "${START}" ]]; then
+        get_item_args="${get_item_args}\"-s\",\"${START}\","
+    fi
+
+    get_item_args="${get_item_args}\"-o\",\"-l\",\"logs/\"]"
+
     cd $WORK_HOME && \
         $JUMBO/bin/node index.js \
             -f pipeline_scripts/${PIPELINE_NAME} \
             -o "\
 {\
-\"getItemArgs\":[\"${LOG_NAME}\",\"-o\",\"-l\",\"logs/\"],\
+\"getItemArgs\":${get_item_args},\
 \"dbUrl\":\"${DB_URL}\",\
 \"dbCollectionName\":\"${DB_COLLECTION_NAME}\",\
 \"shouldCleanByRecordTimestamp\":true\
@@ -36,3 +45,4 @@ function call_get_item {
 "\
             >> ${STDOUT_LOG} 2>> ${STDERR_LOG} &
 }
+
