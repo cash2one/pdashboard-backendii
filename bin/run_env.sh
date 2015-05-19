@@ -18,7 +18,9 @@ export STDERR_LOG=$HOME/pdashboard-stderr.log
 #     LOG_NAME log平台上的名字
 #     DB_URL 连接mongodb的url，默认为mongodb://localhost:27017/pdashboard
 #     DB_COLLECTION_NAME mongodb上存放数据的collection名字
+#     TARGET_PATH 需要过滤的targetPath
 #     START 开始日期
+#     BEGIN 开始小时，若出现，则认为是下载小时日志
 ##
 function call_get_item {
     date >> ${STDOUT_LOG}
@@ -28,6 +30,10 @@ function call_get_item {
 
     if [[ ! -z "${START}" ]]; then
         get_item_args="${get_item_args}\"-s\",\"${START}\","
+    fi
+
+    if [[ ! -z "${BEGIN}" ]]; then
+        get_item_args="${get_item_args}\"-b\",\"${BEGIN}\",\"-h\",\"3600\","
     fi
 
     get_item_args="${get_item_args}\"-o\",\"-l\",\"logs/\"]"
@@ -40,6 +46,7 @@ function call_get_item {
 \"getItemArgs\":${get_item_args},\
 \"dbUrl\":\"${DB_URL}\",\
 \"dbCollectionName\":\"${DB_COLLECTION_NAME}\",\
+\"targetPath\":\"${TARGET_PATH}\",
 \"shouldCleanByRecordTimestamp\":true\
 }\
 "\
