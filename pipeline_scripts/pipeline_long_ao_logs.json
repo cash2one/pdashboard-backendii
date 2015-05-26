@@ -1,0 +1,15 @@
+[
+{
+    "step": "step_open_file"
+},
+{
+    "step": "step_split"
+},
+{
+    "step": "step_extract_log_json_and_userid"
+},
+{
+    "step": "step_extract_events_before_dump"
+}
+]
+
