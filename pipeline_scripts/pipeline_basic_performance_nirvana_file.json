@@ -10,10 +10,7 @@
             "step": "step_extract_log_json_and_userid"
         },
         {
-            "step": "test/step_test_print"
-        },
-        {
-            "step": "step_extract_basic_performance_data"
+            "step": "step_extract_full_performance_data"
         },
         {
             "step": "step_put_in_context"
@@ -23,18 +20,11 @@
         "step": "step_dump_context_results"
     },
     {
-        "step": "step_stat_list",
-        "arguments": [ 100000 ]
-    },
-    {
-        "step": "step_generate_record_timestamp_day"
-    },
-    {
-        "step": "step_stat_pretty_print",
-        "arguments": [ [ "performance_static", "performance_materialList", "performance_accountTree", "performance_ao_manual" ] ]
+        "step": "step_filter_events_before_dumped"
     },
     {
         "step": "test/step_test_print"
     }
+
 ]
 
