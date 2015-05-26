@@ -23,8 +23,18 @@
         "step": "step_filter_events_before_dumped"
     },
     {
+        "step": "step_extract_basic_performance_data_from_full"
+    },
+    {
+        "step": "step_stat_list",
+        "arguments": [ 100000 ]
+    },
+    {
+        "step": "step_stat_pretty_print",
+        "arguments": [ [ "performance_static", "performance_materialList", "performance_accountTree", "performance_ao_manual" ] ]
+    },
+    {
         "step": "test/step_test_print"
     }
-
 ]
 
