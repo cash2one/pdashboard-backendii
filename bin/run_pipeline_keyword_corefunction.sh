@@ -8,6 +8,9 @@ export DB_COLLECTION_NAME={\"new\":\"performance_keyword_coreFunction\",\"old\":
 export TARGET_PATH=/manage/keyword
 
 export DB_URL=performance_GET_data
+export WORK_HOME=/home/users/gushouchuang/backend/pdashboard-backend
+export STDOUT_LOG=/home/users/gushouchuang/backend/edp-stdout.log
+export STDERR_LOG=/home/users/gushouchuang/backend/edp-stderr.log
 
 call_get_item
 
