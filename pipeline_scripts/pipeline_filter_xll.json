@@ -1,0 +1,15 @@
+[
+{
+    "step": "step_open_file"
+},
+{
+    "step": "step_split"
+},
+{
+    "step": "step_filter_xll"
+},
+{
+    "step": "test/step_test_print"
+}
+]
+
