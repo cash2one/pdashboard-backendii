@@ -1,0 +1,38 @@
+[
+    [
+        {
+            "step": "step_get_item_and_open"
+        },
+        {
+            "step": "step_split"
+        },
+        {
+            "step": "step_put_in_context_more_key"
+        }
+    ],
+    {
+        "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_stat_list_more_key",
+        "arguments": [ 100000 ]
+    },
+    {
+        "step": "step_generate_record_timestamp_day"
+    },
+    {
+        "step": "step_clean_by_record_timestamp_more_key"
+    },
+    {
+        "step": "step_put_in_db_more_key"
+    },
+    {
+        "step": "step_stat_pretty_print_more_key",
+        "arguments": [ ["performance_mod_bid", "performance_mod_wurl", "performance_mod_mwurl", "performance_mod_wmatch", "performance_mod_bid_inline", "performance_mod_wurl_inline", "performance_mod_mwurl_inline", "performance_mod_wmatch_inline"] ]
+    
+    },
+    {
+        "step": "step_remove_file"
+    }
+]
+
