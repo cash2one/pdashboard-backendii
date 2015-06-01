@@ -1,6 +1,6 @@
 #! /bin/sh
 
-HOME=/home/users/gushouchuang
+HOME=/home/users/hanbingfeng
 JUMBO=$HOME/.jumbo
 WORK_HOME=$HOME/src/pdashboard-backend
 PATH=/bin:/usr/bin:$JUMBO/bin:$PATH
