@@ -36,6 +36,10 @@ function call_get_item {
         get_item_args="${get_item_args}\"-b\",\"${BEGIN}\",\"-h\",\"3600\","
     fi
 
+    if [[ -z "${XLL}" ]]; then
+        XLL="[]"
+    fi
+
     get_item_args="${get_item_args}\"-o\",\"-l\",\"logs/\"]"
 
     cd $WORK_HOME && \
@@ -46,8 +50,9 @@ function call_get_item {
 \"getItemArgs\":${get_item_args},\
 \"dbUrl\":\"${DB_URL}\",\
 \"dbCollectionName\":\"${DB_COLLECTION_NAME}\",\
-\"targetPath\":\"${TARGET_PATH}\",
-\"shouldCleanByRecordTimestamp\":true\
+\"targetPath\":\"${TARGET_PATH}\",\
+\"shouldCleanByRecordTimestamp\":true,\
+\"xll\":${XLL}\
 }\
 "\
             >> ${STDOUT_LOG} 2>> ${STDERR_LOG} &
