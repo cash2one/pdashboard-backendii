@@ -18,7 +18,6 @@ var argv = require('yargs')
     })
     .example('', '$0 -f pipeline\/pipeline_basic_performance_plan_daily.json -o "{\\"autodelte\\":true}"')
     .argv;
-
 try {
     var pipelineJson = JSON.parse(require('fs').readFileSync(argv.f, {encoding: 'utf8'}));
     if (argv.o != null) {
