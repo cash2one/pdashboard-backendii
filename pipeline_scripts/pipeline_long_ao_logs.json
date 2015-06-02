@@ -1,15 +1,76 @@
 [
-{
-    "step": "step_open_file"
-},
-{
-    "step": "step_split"
-},
-{
-    "step": "step_extract_log_json_and_userid"
-},
-{
-    "step": "step_extract_events_before_dump"
-}
+    [
+    {
+        "step": "step_open_file"
+    },
+    {
+        "step": "step_split"
+    },
+    {
+        "step": "step_filter_xll"
+    },
+    {
+        "step": "step_extract_log_json_and_userid"
+    },
+    {
+        "step": "step_extract_full_performance_data",
+        "arguments": [
+            [
+            "performance_events_before_dumped.events",
+            "userid",
+            "token",
+            "performance_ao_manual",
+            "timeline.timestamp",
+            "timeline.performance_static_basicInfo_start",
+            "timeline.performance_static_basicInfo_finish",
+            "timeline.performance_static_er_inited",
+            "timeline.performance_manage_enter",
+            "timeline.performance_manage_beforemodelload",
+            "timeline.performance_manage_load_materiallist",
+            "timeline.performance_manage_ao_manual_start",
+            "timeline.performance_manage_ao_manual_nirvana_base_loaded",
+            "timeline.performance_manage_ao_manual_js_async_loaded",
+            "timeline.performance_manage_ao_manual_ui_inited",
+            "timeline.performance_manage_ao_manual_control_started",
+            "timeline.performance_manage_ao_manual_finished"
+            ]
+        ]
+    },
+    {
+        "step": "step_put_performance_data_filtered"
+    }
+    ],
+    {
+        "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_filter_long_ao"
+    },
+    {
+        "step": "step_list_pretty_print",
+        "arguments": [
+            [
+            "userid",
+            "token",
+            "timeline.timestamp",
+            "performance_ao_manual",
+            "timeline.performance_static_basicInfo_start",
+            "timeline.performance_static_basicInfo_finish",
+            "timeline.performance_static_er_inited",
+            "timeline.performance_manage_enter",
+            "timeline.performance_manage_beforemodelload",
+            "timeline.performance_manage_load_materiallist",
+            "timeline.performance_manage_ao_manual_start",
+            "timeline.performance_manage_ao_manual_nirvana_base_loaded",
+            "timeline.performance_manage_ao_manual_js_async_loaded",
+            "timeline.performance_manage_ao_manual_ui_inited",
+            "timeline.performance_manage_ao_manual_control_started",
+            "timeline.performance_manage_ao_manual_finished"
+            ]
+        ]
+    },
+    {
+        "step": "test/step_test_print"
+    }
 ]
 

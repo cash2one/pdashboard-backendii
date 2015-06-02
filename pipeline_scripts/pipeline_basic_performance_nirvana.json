@@ -16,10 +16,10 @@
             "step": "step_extract_full_performance_data",
             "arguments": [ [
                 "performance_events_before_dumped.events",
-                "performance_static.performance_static",
-                "performance_materialList.performance_materialList",
-                "performance_accountTree.performance_accountTree",
-                "performance_ao_manual.performance_ao_manual"
+                "performance_static",
+                "performance_materialList",
+                "performance_accountTree",
+                "performance_ao_manual"
             ] ]
         },
         {
