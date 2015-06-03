@@ -1,0 +1,51 @@
+[
+    [
+    {
+        "step": "step_open_file"
+    },
+    {
+        "step": "step_split"
+    },
+    {
+        "step": "step_filter_xll"
+    },
+    {
+        "step": "step_extract_log_json_and_userid"
+    },
+    {
+        "step": "step_extract_full_performance_data",
+        "arguments": [
+            [
+            "",
+            "ao_request_time.time"
+            ]
+        ]
+    },
+    {
+        "step": "step_put_performance_data_filtered"
+    }
+    ],
+    {
+        "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_extract_basic_performance_data_from_full",
+        "arguments": [ [
+            "ao_request_time.time"
+        ] ]
+    },
+    {
+        "step": "step_stat_list",
+        "arguments": [ 100000 ]
+    },
+    {
+        "step": "step_stat_pretty_print",
+        "arguments": [ [
+            "ao_request_time.time"
+        ] ]
+    },
+    {
+        "step": "test/step_test_print"
+    }
+]
+
