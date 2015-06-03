@@ -2,7 +2,7 @@
 
 HOME=/home/users/hanbingfeng/
 JUMBO=$HOME/.jumbo
-WORK_HOME=$HOME/pdashboard-backend
+WORK_HOME=$HOME/src/pdashboard-backend
 PATH=/bin:/usr/bin:$JUMBO/bin:$PATH
 
 export DB_URL=mongodb://localhost:27017/pdashboard

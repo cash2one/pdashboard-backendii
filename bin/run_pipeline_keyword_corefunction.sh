@@ -7,6 +7,5 @@ export LOG_NAME=fengchao_feview_performance_nirvana_mod_day
 export DB_COLLECTION_NAME=\{\\\"new\\\":\\\"performance_keywordii_coreFunction\\\",\\\"old\\\":\\\"performance_keyword_coreFunction\\\"\}
 
 export TARGET_PATH=/manage/keyword
-
 call_get_item
 
