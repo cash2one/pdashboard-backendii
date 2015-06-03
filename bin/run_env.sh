@@ -2,13 +2,13 @@
 
 HOME=/home/users/hanbingfeng/
 JUMBO=$HOME/.jumbo
-WORK_HOME=$HOME/src/gsc/pdashboard-backend
+WORK_HOME=$HOME/pdashboard-backend
 PATH=/bin:/usr/bin:$JUMBO/bin:$PATH
 
 export DB_URL=mongodb://localhost:27017/pdashboard
 
-export STDOUT_LOG=$HOME/src/gsc/pdashboard-stdout.log
-export STDERR_LOG=$HOME/src/gsc/pdashboard-stderr.log
+export STDOUT_LOG=$HOME/pdashboard-stdout.log
+export STDERR_LOG=$HOME/pdashboard-stderr.log
 
 
 ##
