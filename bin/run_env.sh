@@ -1,6 +1,6 @@
 #! /bin/sh
 
-HOME=/home/users/hanbingfeng
+HOME=/home/users/hanbingfeng/
 JUMBO=$HOME/.jumbo
 WORK_HOME=$HOME/src/pdashboard-backend
 PATH=/bin:/usr/bin:$JUMBO/bin:$PATH
@@ -57,4 +57,5 @@ function call_get_item {
 "\
             >> ${STDOUT_LOG} 2>> ${STDERR_LOG} &
 }
+
 
