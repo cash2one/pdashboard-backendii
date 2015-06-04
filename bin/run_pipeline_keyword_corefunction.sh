@@ -9,3 +9,4 @@ export DB_COLLECTION_NAME=\{\\\"new\\\":\\\"performance_keywordii_coreFunction\\
 export TARGET_PATH=/manage/keyword
 call_get_item
 
+
