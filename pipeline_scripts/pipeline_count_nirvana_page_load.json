@@ -1,0 +1,21 @@
+[
+{
+    "step": "step_open_file"
+},
+{
+    "step": "step_split"
+},
+{
+    "step": "step_filter_xll"
+},
+{
+    "step": "step_extract_log_json_and_userid"
+},
+{
+    "step": "step_filter_nirvana_page_load"
+},
+{
+    "step": "test/step_test_print"
+}
+]
+

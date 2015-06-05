@@ -29,7 +29,7 @@
         "step": "step_dump_context_results"
     },
     {
-        "step": "step_extract_basic_performance_data_from_full",
+        "step": "step_compute_performance_data",
         "arguments": [ [
             "ao_request_time.time"
         ] ]

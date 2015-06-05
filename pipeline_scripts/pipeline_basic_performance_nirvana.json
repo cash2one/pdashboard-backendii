@@ -30,7 +30,7 @@
         "step": "step_dump_context_results"
     },
     {
-        "step": "step_extract_basic_performance_data_from_full",
+        "step": "step_compute_performance_data",
         "arguments": [ [ "performance_static", "performance_materialList", "performance_accountTree", "performance_ao_manual" ] ]
     },
     {
