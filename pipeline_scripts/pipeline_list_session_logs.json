@@ -16,11 +16,15 @@
         "step": "step_extract_session_logs"
     },
     {
-        "step": "step_put_performance_data_filtered"
+        "step": "step_put_in_context"
     }
     ],
     {
         "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_filter_result_long_ao",
+        "arguments": [ 15000 ]
     },
     {
         "step": "step_order_logs" 
