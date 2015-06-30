@@ -19,9 +19,12 @@
             "performance_events_before_dumped.events",
             "userid",
             "performance_ao_manual",
+            "timeline.iframeShowed",
             "timeline.performance_static_basicInfo_start",
             "timeline.performance_static_basicInfo_finish",
             "timeline.performance_static_er_inited",
+            "timeline.performance_manage_actionloaded",
+            "timeline.performance_manage_enteraction",
             "timeline.performance_manage_enter",
             "timeline.performance_manage_beforemodelload",
             "timeline.performance_manage_load_materiallist",
@@ -42,11 +45,16 @@
         "step": "step_dump_context_results"
     },
     {
+        "step": "step_filter_not_iframe_showed_timeline"
+    },
+    {
         "step": "step_compute_performance_data",
         "arguments": [ [ 
             "timeline.performance_static_basicInfo_start",
             "timeline.performance_static_basicInfo_finish",
             "timeline.performance_static_er_inited",
+            "timeline.performance_manage_actionloaded",
+            "timeline.performance_manage_enteraction",
             "timeline.performance_manage_enter",
             "timeline.performance_manage_beforemodelload",
             "timeline.performance_manage_load_materiallist",
@@ -68,6 +76,8 @@
             "timeline.performance_static_basicInfo_start",
             "timeline.performance_static_basicInfo_finish",
             "timeline.performance_static_er_inited",
+            "timeline.performance_manage_actionloaded",
+            "timeline.performance_manage_enteraction",
             "timeline.performance_manage_enter",
             "timeline.performance_manage_beforemodelload",
             "timeline.performance_manage_load_materiallist",
