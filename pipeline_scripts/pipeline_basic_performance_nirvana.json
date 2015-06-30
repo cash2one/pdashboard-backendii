@@ -19,7 +19,11 @@
                 "performance_static",
                 "performance_materialList",
                 "performance_accountTree",
-                "performance_ao_manual"
+                "performance_ao_manual",
+                "performance_static.iframeShowed",
+                "performance_materialList.iframeShowed",
+                "performance_accountTree.iframeShowed",
+                "performance_ao_manual.iframeShowed"
             ] ]
         },
         {
@@ -28,6 +32,9 @@
     ],
     {
         "step": "step_dump_context_results"
+    },
+    {
+        "step": "step_filter_not_iframe_showed_basic"
     },
     {
         "step": "step_filter_result_events_before_dumped"
