@@ -24,7 +24,7 @@
     },
     {
         "step": "step_filter_result_long_ao",
-        "arguments": [ 15000 ]
+        "arguments": [ 10000 ]
     },
     {
         "step": "step_order_logs" 
