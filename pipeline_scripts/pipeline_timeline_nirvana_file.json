@@ -27,15 +27,23 @@
             "timeline.performance_manage_enteraction",
             "timeline.performance_manage_enter",
             "timeline.performance_manage_beforemodelload",
+            "timeline.performance_manage_load_navinfo",
             "timeline.performance_manage_load_materiallist",
+            "timeline.performance_manage_modelloaded",
             "timeline.performance_manage_ao_manual_start",
             "timeline.performance_manage_ao_manual_nirvana_base_loaded",
             "timeline.performance_manage_ao_manual_js_async_loaded",
             "timeline.performance_manage_ao_manual_ui_inited",
             "timeline.performance_manage_ao_manual_control_started",
-            "timeline.performance_manage_ao_manual_finished"
+            "timeline.performance_manage_ao_manual_finished",
+            "performance_materialList_table_repaint.performance_materialList_table_repaint_start_0",
+            "performance_materialList_table_repaint.performance_materialList_table_repaint_finish_1",
+            "performance_materialList_table_repaint_process"
             ]
         ]
+    },
+    {
+        "step": "step_compute_materialList_table_repaint_process"
     },
     {
         "step": "step_put_performance_data_filtered"
@@ -60,13 +68,18 @@
             "timeline.performance_manage_enteraction",
             "timeline.performance_manage_enter",
             "timeline.performance_manage_beforemodelload",
+            "timeline.performance_manage_load_navinfo",
             "timeline.performance_manage_load_materiallist",
+            "timeline.performance_manage_modelloaded",
             "timeline.performance_manage_ao_manual_start",
             "timeline.performance_manage_ao_manual_nirvana_base_loaded",
             "timeline.performance_manage_ao_manual_js_async_loaded",
             "timeline.performance_manage_ao_manual_ui_inited",
             "timeline.performance_manage_ao_manual_control_started",
-            "timeline.performance_manage_ao_manual_finished"
+            "timeline.performance_manage_ao_manual_finished",
+            "performance_materialList_table_repaint.performance_materialList_table_repaint_start_0",
+            "performance_materialList_table_repaint.performance_materialList_table_repaint_finish_1",
+            "performance_materialList_table_repaint_process"
         ] ]
     },
     {
@@ -83,13 +96,18 @@
             "timeline.performance_manage_enteraction",
             "timeline.performance_manage_enter",
             "timeline.performance_manage_beforemodelload",
+            "timeline.performance_manage_load_navinfo",
             "timeline.performance_manage_load_materiallist",
+            "timeline.performance_manage_modelloaded",
             "timeline.performance_manage_ao_manual_start",
             "timeline.performance_manage_ao_manual_nirvana_base_loaded",
             "timeline.performance_manage_ao_manual_js_async_loaded",
             "timeline.performance_manage_ao_manual_ui_inited",
             "timeline.performance_manage_ao_manual_control_started",
-            "timeline.performance_manage_ao_manual_finished"
+            "timeline.performance_manage_ao_manual_finished",
+            "performance_materialList_table_repaint.performance_materialList_table_repaint_start_0",
+            "performance_materialList_table_repaint.performance_materialList_table_repaint_finish_1",
+            "performance_materialList_table_repaint_process"
         ] ]
     },
     {
