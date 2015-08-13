@@ -36,7 +36,7 @@ function getItemFromLSP()
     local ftp_url_offline="ftp://lsp_ecom_fengchao:ecom_fengchao_0573nk69qnfj0dj3dp@nj01-yulong-data.dmop.baidu.com/${log_name}/${log_date}/${log_time}/${log_name}"
     local lsp_baseurl_online="http://online.logdata.baidu.com/?m=Data&a=GetData&token=ecom_fengchao_0573nk69qnfj0dj3dp&product=ecom_fengchao&item=${log_name}&date=${log_date}%20${log_time}"
     local ftp_url_online="ftp://lsponline_ecom_fengchao:ecom_fengchao_0573nk69qnfj0dj3dp@nj01-yulong-data.dmop.baidu.com/${log_name}/${log_date}/${log_time}/${log_name}"
-    local wget_cmd="wget -T 0 -t 5 --limit-rate=10M -O"
+    local wget_cmd="wget -T 0 -t 50 --limit-rate=10M -O"
 
     if [ "${is_offline}" = "NO" ];then
 	lsp_baseurl=${lsp_baseurl_online}
