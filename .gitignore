@@ -3,3 +3,4 @@ logs
 *.swp
 core.node.*
 transkeeper.log
+pdashboard-std*.log
