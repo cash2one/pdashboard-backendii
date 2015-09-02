@@ -1,15 +1,14 @@
 #! /bin/sh
-
-HOME=/home/users/hanbingfeng
-JUMBO=$HOME/.jumbo
-WORK_HOME=$HOME/src/pdashboard-backend
-PATH=/bin:/usr/bin:$JUMBO/bin:$PATH
-
-export DB_URL=mongodb://localhost:27017/pdashboard
-
-export STDOUT_LOG=$HOME/pdashboard-stdout.log
-export STDERR_LOG=$HOME/pdashboard-stderr.log
-
+##
+# 设置相应的目录
+# 再运行deploy.sh
+# 完成项目目录部署
+##
+USERNAME=wujianwei01
+PDASH_ROOT=Git
+HADOOP_ROOT=.
+DATA_ROOT=data
+source `dirname $0`/deploy.sh
 
 ##
 # 启动一个pipeline，下载log脚本，计算并存入数据库
@@ -40,10 +39,9 @@ function call_get_item {
         XLL="[]"
     fi
 
-    get_item_args="${get_item_args}\"-o\",\"-l\",\"logs/\"]"
-
+    get_item_args="${get_item_args}\"-o\",\"-l\",\"${LOG_DIR}/\"]"
     cd $WORK_HOME && \
-        $JUMBO/bin/node index.js \
+        node index.js \
             -f pipeline_scripts/${PIPELINE_NAME} \
             -o "\
 {\

@@ -1,6 +1,6 @@
 {
   "name": "pdashboard-backend",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "凤巢性能dashboard后端，获取各方性能数据并入库。",
   "main": "index.js",
   "scripts": {

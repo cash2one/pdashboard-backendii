@@ -250,7 +250,6 @@ echo "ITEM FREQUENCY:${DOWNLOAD_LEVEL}"
 begin_long=`date -d "${BEGIN_DATE} ${BEGIN_TIME}" +"%s"`
 end_long=`date -d "${END_DATE} ${END_TIME}" +"%s"`
 add_time=${DOWNLOAD_LEVEL}
-
 while [ ${begin_long} -le ${end_long} ]
 do
     call_date=`date -d '1970-01-01 UTC '${begin_long}' seconds' +"%Y%m%d"`
