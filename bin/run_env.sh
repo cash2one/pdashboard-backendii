@@ -1,15 +1,13 @@
 #! /bin/sh
-##
-# 设置相应的目录
-# 再运行deploy.sh
-# 完成项目目录部署
-##
-USERNAME=wujianwei01
-PDASH_ROOT=Git
-HADOOP_ROOT=.
-DATA_ROOT=data
-source `dirname $0`/deploy.sh
 
+# 加载配置文件中的内容
+CONF=~/.pdashboard.conf
+if [ ! -f $CONF ]; then
+    echo "配置文件不存在，请运行deploy.sh文件并根据提示填写相应的信息,然后再执行"
+    exit -1
+else
+    source $CONF
+fi
 ##
 # 启动一个pipeline，下载log脚本，计算并存入数据库
 # Globals:
@@ -39,7 +37,8 @@ function call_get_item {
         XLL="[]"
     fi
 
-    get_item_args="${get_item_args}\"-o\",\"-l\",\"${LOG_DIR}/\"]"
+    get_item_args="${get_item_args}\"-o\",\"-l\",\"${DATA_HOME}/\"]"
+
     cd $WORK_HOME && \
         node index.js \
             -f pipeline_scripts/${PIPELINE_NAME} \
