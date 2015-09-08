@@ -12,7 +12,7 @@
 var fs = require('fs');
 var u = require('underscore');
 var path = require('path');
-var m = require('moment');
+var moment = require('moment-datetime');
 
 var argv = require('yargs')
     .usage('使用方法：node clear_file.js [选项]')
@@ -31,8 +31,8 @@ var intervalTime = 2;
 if (argv.t !== true && typeof argv.t === 'number') {
     intervalTime = argv.t;
 }
-var desDir = argv.d || '/home/users/wujianwei01/data/logs';
-var time = +new Date();
+var desDir = argv.d || 'logs';
+var time = moment();
 fs.readdir(desDir, function (err, dirs) {
     if (err) {
         console.error('文件夹不存在,请重新输入');
@@ -50,18 +50,15 @@ fs.readdir(desDir, function (err, dirs) {
         }
         var fatherDirs = fs.readdirSync(path.join(desDir, dir));
         var sonDirs = [];
-        // console.log(path.join(desDir, dir));
         if (fatherDirs.length > 0) {
             u.each(fatherDirs, function (fatherDir) {
-                // console.log(path.join(desDir, dir, fatherDir));
                 sonDirs = fs.readdirSync(path.join(desDir, dir, fatherDir));
-                // console.log(sonDirs);
                 findDirAndRemove(path.join(desDir, dir, fatherDir), fatherDir, sonDirs, time, intervalTime, isDay);
             });
         }
         else {
             rmDir(path.join(desDir, dir));
-            console.log(m().format('YYYY-MM-DD HH:mm:ss') + '\t' + path.join(desDir, dir) + '\t' + '被删除');
+            console.log(moment().strftime('%Y%m%d %H:%M:%S') + '\t' + path.join(desDir, dir) + '\t' + '被删除');
         }
     });
 });
@@ -82,15 +79,11 @@ fs.readdir(desDir, function (err, dirs) {
 function findDirAndRemove(pwd, superDir, subDirs, time, intervalTime, isDay) {
     if (subDirs.length === 0) {
         rmDir(pwd);
-        console.log(m().format('YYYY-MM-DD HH:mm:ss') + '\t'  + pwd + '\t' + '被删除');
+        console.log(moment().strftime('%Y%m%d %H:%M:%S') + '\t'  + pwd + '\t' + '被删除');
     }
     else {
         u.each(subDirs, function (subDir) {
-            var downloadTime = new Date(superDir.slice(0, 4),
-                superDir.slice(4, 6) - 1,
-                superDir.slice(6),
-                subDir.slice(0, 2))
-                .getTime();
+            var downloadTime = moment.fn.strptime(superDir + subDir, '%Y%m%d%H%M');
             var removeDir = '';
             if (isDay) {
                 removeDir = path.join(pwd, '..');
@@ -101,7 +94,7 @@ function findDirAndRemove(pwd, superDir, subDirs, time, intervalTime, isDay) {
             }
             if (Math.ceil((time - downloadTime) / (1000 * 60 * 60)) > intervalTime) {
                 rmDir(removeDir);
-                console.log(m().format('YYYY-MM-DD HH:mm:ss') + '\t'  + removeDir + '\t' + '被删除');
+                console.log(moment().strftime('%Y%m%d %H:%M:%S') + '\t'  + removeDir + '\t' + '被删除');
             }
         });
     }
