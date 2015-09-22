@@ -65,5 +65,5 @@ STDERR_LOG=$ERROR
 # 程序运行输出日志文件路径
 STDOUT_LOG=$OUT
 EOF
-
+npm install
 exit 0
