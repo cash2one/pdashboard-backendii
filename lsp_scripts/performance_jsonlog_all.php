@@ -244,15 +244,15 @@ $n2Filtered = $jsonLogs
 $n2Stat = doStat($n2Filtered);
 
 $n2Stat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvanaII_hourly",
-    "凤巢前端性能_nirvanaII_小时",
+    "fengchao_feview_performance_jsonlog_nirvanaII_daily",
+    "凤巢前端性能_nirvanaII_天",
     null,
     true
 );
 
 $n2Stat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvanaII_json_hourly",
-    "凤巢前端性能_nirvanaII_json_小时",
+    "fengchao_feview_performance_jsonlog_nirvanaII_json_daily",
+    "凤巢前端性能_nirvanaII_json_天",
     'toJsonOutput',
     true
 );
@@ -266,7 +266,7 @@ $n2Stat->outputAsFile(
  */
 function filterIsBlankOpened($logObject) {
     return is_null($logObject['isBlankOpened'])
-        || $logObject['isBlankOpened'] !== true;
+        || $logObject['isBlankOpened'] == '';
 }
 
 /**
@@ -290,7 +290,7 @@ function filterCorewords($logObject) {
  */
 function filterIsLoadingDumpped($logObject) {
     return is_null($logObject['isLoadingDumpped']) ||
-        $logObject['isLoadingDumpped'] != true;
+        $logObject['isLoadingDumpped'] == '';
 }
 
 // 1, 基础过滤
@@ -298,7 +298,7 @@ $nFiltered = $jsonLogs
     ->filter(array(
         // 过滤targets
         array('target', 'in', array(
-            'performance_static' => s1,
+            'performance_static' => 1,
             'performance_materialList' => 1,
             'performance_accountTree' => 1,
             'performance_ao_manual' => 1,
@@ -333,15 +333,15 @@ $nFiltered = $jsonLogs
 $nStat = doStat($nFiltered);
 
 $nStat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvana_hourly",
-    "凤巢前端性能_nirvana_小时",
+    "fengchao_feview_performance_jsonlog_nirvana_daily",
+    "凤巢前端性能_nirvana_天",
     null,
     true
 );
 
 $nStat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvana_json_hourly",
-    "凤巢前端性能_nirvana_json_小时",
+    "fengchao_feview_performance_jsonlog_nirvana_json_daily",
+    "凤巢前端性能_nirvana_json_天",
     'toJsonOutput',
     true
 );
