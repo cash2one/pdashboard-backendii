@@ -198,3 +198,13 @@ function extractLogData($object) {
     return $result;
 }
 
+$nirvanaPageLoadLogs = DQuery::input()
+    ->select(extractLogData)
+    ->filter(array('target', '==', 'NIRVANA_PAGE_LOAD'));
+
+$nirvanaPageLoadPv = $nirvanaPageLoadLogs
+    ->count('*', 'pageLoadPv')
+    ->select(array('pageLoadPv'));
+
+$nirvanaPageLoadPv->outputAsNumeric('fengchao_feview_pv_jsonlog_nirvana', '凤巢前端PV(Nirvana)');
+
