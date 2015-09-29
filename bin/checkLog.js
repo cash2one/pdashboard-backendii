@@ -51,7 +51,7 @@ exports.checkLogStamp = function (opts, db) {
             // console.log(docs);
             if (docs.length > 0 && docs[0].statestamp === opts.statestamp) {
                 // 若数据库中存的时间戳和获取文件的时间戳一致， resolve
-                resolve({
+                reject({
                     reason: -1
                 });
             }
@@ -87,7 +87,7 @@ exports.checkLogStamp = function (opts, db) {
                     }
                 });
                 rd.on('close', function (){
-                    reject({
+                    resolve({
                         reason: reason,
                         sources: sources
                     });

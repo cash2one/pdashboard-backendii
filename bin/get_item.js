@@ -53,7 +53,6 @@ exports.getItem = function (opts, dataPath, reason) {
     }
     var command  = 'hadoop dfs -get ' + source + ' ' + destination;
     return new Promise(function(resolve, reject) {
-        console.log(destination);
         fs.stat(destination, function (err, stat) {
             if (err) {
                 if ('ENOENT' === err.code) {

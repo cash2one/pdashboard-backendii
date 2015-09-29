@@ -41,6 +41,7 @@ exports.basicPlanIndex = function (opts, db) {
                 this.emit('line', {data: line});
             },
             finish: function (evt) {
+                var me = this;
                 if (opts.period === 'hourly') {
                     return;
                 }
@@ -51,7 +52,7 @@ exports.basicPlanIndex = function (opts, db) {
                 _.each(logs, function (list, path, log) {
                     var collection;
                     var basic = list;
-                    if (/^\/manage\/plan$/.test(path)) {
+                    if (/^\/manage\/plan$/.test(path) && /II/.test(opts.jobname)) {
                         collection = 'performance_plan_basic';
                     }
                     else if (/^\/manage\/keyword$/.test(path)) {
@@ -62,11 +63,15 @@ exports.basicPlanIndex = function (opts, db) {
                             collection = 'performance_keyword_basic';
                         }
                     }
+                    else if (/^\/overview\/index$/.test(path) && !(/II/.test(opts.jobname))) {
+                        collection = 'performance_emanage_basic';
+                    }
                     if (collection) {
-                        if (/II/.test(opts.jobname)) {
+                        if (collection !== 'performance_emanage_basic') {
                             // nirvanaII 中取plan_basic 和 keywordii
                             basic = _.filter(basic, function(info) {
-                                return !(/performance_emanage/.test(info.target)) && info.target === info.item;
+                                return (info.item === 'performance_newAomanual_query_end_2') ||
+                                (!(/performance_emanage/.test(info.target)) && info.target === info.item);
                             });
                         }
                         else {
@@ -76,15 +81,14 @@ exports.basicPlanIndex = function (opts, db) {
                                     /^performance_static$/.test(info.item))
                                     && info.target === info.item;
                             });
-                            collection = 'performance_emanage_basic';
                         }
                         basic = _.chain(basic).map(function (info) {
                             return {
-                                50: info.t50,
-                                80: info.t80,
-                                95: info.t95,
-                                count: info.pv,
-                                average: info.average,
+                                50: parseFloat(info.t50),
+                                80: parseFloat(info.t80),
+                                95: parseFloat(info.t95),
+                                count: parseFloat(info.pv),
+                                average: parseFloat(info.average),
                                 item: info.item
                             }
                         }).indexBy('item').each(function (info) {
@@ -92,8 +96,17 @@ exports.basicPlanIndex = function (opts, db) {
                         }).value();
 
                         basic.recordTimestamp = recordTimestamp;
-                        console.log(basic, 'fafsfsa');
-                        insertDataInDb(db, collection, basic);
+                        if (opts.period === 'hourly') {
+                            collection  += '_hourly';
+                        }
+                        var coll = db.collection(collection);
+                        coll.remove({recordTimestamp: recordTimestamp}, function (err, result) {
+                            coll.insert([basic], function (err, result) {
+                                if (collection === 'performance_emanage_basic') {
+                                    me.emit('end', {});
+                                }
+                            });
+                        });
                     }
 
                     timeline[path] = _.filter(list, function (info) {
@@ -102,11 +115,11 @@ exports.basicPlanIndex = function (opts, db) {
                     if (timeline[path].length) {
                         timeline[path] = _.chain(timeline[path]).map(function (info) {
                             return {
-                                50: info.t50,
-                                80: info.t80,
-                                95: info.t95,
-                                count: info.pv,
-                                average: info.average,
+                                50: parseFloat(info.t50),
+                                80: parseFloat(info.t80),
+                                95: parseFloat(info.t95),
+                                count: parseFloat(info.pv),
+                                average: parseFloat(info.average),
                                 item: info.item
                             }
                         }).indexBy('item').each(function (info) {
@@ -119,10 +132,17 @@ exports.basicPlanIndex = function (opts, db) {
                 });
                 if (!_.isEmpty(timeline, {})) {
                     timeline.recordTimestamp = recordTimestamp;
-                    //console.log(_.keys(timeline).length, recordTimestamp);
-                    insertDataInDb(db, 'performance_timeline', timeline);
+                    var timeCollName = 'performance_timeline';
+                    if (opts.period === 'hourly') {
+                        timeCollName += '_hourly';
+                    }
+                    var timeColl = db.collection(timeCollName);
+                    timeColl.remove({recordTimestamp: recordTimestamp}, function (err, result) {
+                        timeColl.insert([timeline], function (err, result) {
+                            me.emit('end', {});
+                        });
+                    });
                 }
-                this.emit('end', {});
             }
         })
     }
