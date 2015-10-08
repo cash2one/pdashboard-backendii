@@ -89,8 +89,8 @@ prompt.get(schema, function (err, result) {
         console.log(err);
     }
     else {
-        result['data-path'] = result['work-home'] + result['data-path'];
-        result['log-path'] = result['work-home'] + result['log-path'];
+        result['data-path'] = result['work-home'] + '/' + result['data-path'];
+        result['log-path'] = result['work-home'] + '/' + result['log-path'];
         var conf = process.env.HOME + '/.nightingale.conf';
         if (!fs.existsSync(conf)) {
             console.log('创建项目conf文件');
@@ -98,18 +98,9 @@ prompt.get(schema, function (err, result) {
         }
         if (result['work-home'] !== process.env.PWD) {
             var copyFile = cp.exec('cp -r ' + process.env.PWD + '/*  ' + result['work-home']);
-            //copyFile.stderr.on('data', function (data) {
-            //    console.log(data);
-            //});
-            //copyFile.stdout.on('data', function (data) {
-            //    console.info(data);
-            //})
             copyFile.on('close', function (code) {
-            //    console.log('项目文件已部署到设定的工作目录. code:', code);
-            //});
-            //copyFile.on('close', function (code) {
-            //    console.info('copy file process end. code:', code);
-            //});
+                console.log('项目文件已部署到设定的工作目录. code:', code);
+            });
         }
     }
 });

@@ -32,9 +32,7 @@ function processLog (opts, db, map) {
             start: _.noop,
             handler: _.noop,
             finish: function(evt) {
-                resolve({
-                    info: 'done############'
-                });
+                resolve();
             }
         });
         index['done'] = done;

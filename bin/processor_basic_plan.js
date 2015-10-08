@@ -42,9 +42,6 @@ exports.basicPlanIndex = function (opts, db) {
             },
             finish: function (evt) {
                 var me = this;
-                if (opts.period === 'hourly') {
-                    return;
-                }
                 var logs = _.groupBy(this.logs, function (info) {
                     return info.path;
                 });
@@ -102,7 +99,7 @@ exports.basicPlanIndex = function (opts, db) {
                         var coll = db.collection(collection);
                         coll.remove({recordTimestamp: recordTimestamp}, function (err, result) {
                             coll.insert([basic], function (err, result) {
-                                if (collection === 'performance_emanage_basic') {
+                                if (/performance_emanage_basic/.test(collection)) {
                                     me.emit('end', {});
                                 }
                             });

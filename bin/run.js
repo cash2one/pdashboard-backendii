@@ -105,9 +105,8 @@ exports.run = function () {
                 }, function (err) {
                 });
             })
-        ).then(function (data) {
-            console.log(data);
-            console.log(moment().strftime('%Y-%m-%d %H:%M'), 'processor done');
+        ).then(function () {
+            console.log('############',moment().strftime('%Y-%m-%d %H:%M'), 'all processor done ###########');
             db.close();
         });
         }, function () {
