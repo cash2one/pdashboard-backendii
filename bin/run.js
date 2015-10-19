@@ -106,8 +106,17 @@ exports.run = function () {
                 });
             })
         ).then(function () {
-            console.log('############',moment().strftime('%Y-%m-%d %H:%M'), 'all processor done ###########');
+            return require('./warn').run(db);
+        }).then(function (warns) {
             db.close();
+            console.log('############', 'mail warn: ', warns.warn, ' ##############');
+            if (warns.warn) {
+                console.log('############', 'sendMail code: ', warns.code, '##############');
+            }
+            console.log('############',moment().strftime('%Y-%m-%d %H:%M'), 'all processor done ###########');
+        }).catch(function (err) {
+            db.close();
+            console.log(err);
         });
         }, function () {
     });
