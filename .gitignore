@@ -4,3 +4,6 @@ logs
 core.node.*
 transkeeper.log
 pdashboard-std*.log
+.*
+*.out
+data

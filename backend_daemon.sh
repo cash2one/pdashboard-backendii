@@ -10,7 +10,7 @@
 test -f ./edp-webserver-config.js || exit 0
 
 # 执行的命令
-CMD="nohup edp webserver start --port 18848 --dbUrl  mongodb://localhost:27017/pdashboard &"
+CMD="nohup edp webserver start --port 18848 --dbUrl  mongodb://localhost:27017/pdashboard"
 
 # pid存放文件
 PID=.pdashboard-backend.pid

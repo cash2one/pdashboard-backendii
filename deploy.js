@@ -7,6 +7,7 @@
 var prompt = require('prompt');
 var fs = require('fs-extra');
 var _ = require('underscore');
+var cp = require('child_process');
 
 // 文件夹不存在时的提示语
 var dirNotExistMsg = '文件夹不存在，请重新输入';
@@ -88,6 +89,18 @@ prompt.get(schema, function (err, result) {
         console.log(err);
     }
     else {
-        fs.writeFileSync('~/.nightingale.conf', JSON.stringify(_.extend(result, watchingList), null, 4), 'utf-8');
+        result['data-path'] = result['work-home'] + '/' + result['data-path'];
+        result['log-path'] = result['work-home'] + '/' + result['log-path'];
+        var conf = process.env.HOME + '/.nightingale.conf';
+        if (!fs.existsSync(conf)) {
+            console.log('创建项目conf文件');
+            fs.writeFileSync(conf, JSON.stringify(_.extend(result, watchingList), null, 4), 'utf-8');
+        }
+        if (result['work-home'] !== process.env.PWD) {
+            var copyFile = cp.exec('cp -r ' + process.env.PWD + '/*  ' + result['work-home']);
+            copyFile.on('close', function (code) {
+                console.log('项目文件已部署到设定的工作目录. code:', code);
+            });
+        }
     }
 });
