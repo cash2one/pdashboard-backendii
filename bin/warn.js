@@ -47,14 +47,14 @@ var threshold = {
  * @return {Promise}
  * @author wujianwei01@baidu.com
  */
-exports.run = function(db) {
+exports.run = function(db, mailTplPath) {
     return new Promise(function (resolve, reject) {
         exports.getDataInDb(db)
         .then(function (data){
             return exports.mailHandle(data);
         }).then(function (mailContent) {
             if (mailContent.warn) {
-                var mailTpl = fs.readFileSync('./mailTpl.tpl', 'utf8');
+                var mailTpl = fs.readFileSync(mailTplPath, 'utf8');
                 etpl.compile(mailTpl);
                 return exports.sendMail(etpl.render('mailContent', mailContent.result));
             }
@@ -67,6 +67,7 @@ exports.run = function(db) {
         }).then(function (res) {
             resolve(res);
         }).catch(function (err) {
+            db.close();
             console.log('err in warn.js: ' + err);
         })
     });

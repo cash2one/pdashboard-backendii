@@ -106,7 +106,7 @@ exports.run = function () {
                 });
             })
         ).then(function () {
-            return require('./warn').run(db);
+            return require('./warn').run(db, config['work-home'] + '/bin/mailTpl.tpl');
         }).then(function (warns) {
             db.close();
             console.log('############', 'mail warn: ', warns.warn, ' ##############');
