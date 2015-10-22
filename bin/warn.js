@@ -24,7 +24,7 @@ var options = {
     ],
     'performance_timeline': [
         'performance_static_basicInfo',
-        'performance_manage_ao_manual',
+        'performance_manage_new_aomanual',
     ],
     'performance_emanage_basic': [
         'performance_emanage_coreword_is_stable',
@@ -116,8 +116,8 @@ exports.mailHandle = function (data) {
                 _.each(options[collName], function (field) {
                     if (collName === 'performance_timeline') {
                         var finish = '_finish';
-                        if (/ao_manual/.test(field)) {
-                            finish += 'ed';
+                        if (/aomanual/.test(field)) {
+                            finish = '_query_end2';
                         }
                         subtract[field] = {
                             '50': elem['/manage/plan'][field + finish]['50'] - elem['/manage/plan'][field + '_start']['50'],
