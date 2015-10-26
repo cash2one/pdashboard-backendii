@@ -53,6 +53,7 @@ mongo.MongoClient.connect(config['db-url'], function (err, database) {
  */
 exports.run = function () {
     var watchingList = config['watching-list'];
+    console.log('############', moment().strftime('%Y-%m-%d %H:%M'), 'processor start ###########');
     connectDb(config['db-url']).then(function (db){
         Promise.all(
             _.map(watchingList, function (conf){
@@ -100,7 +101,7 @@ exports.run = function () {
                         }
                     },function () {
                         // 数据库中时间戳与文件时间戳一致
-                        console.log('in test', 'statestamp equal', 'exit');
+                        console.log(opts.jobname, '*********statestamp equal', 'exit');
                     });
                 }, function (err) {
                 });
@@ -109,11 +110,11 @@ exports.run = function () {
             return require('./warn').run(db, config['work-home'] + '/bin/mailTpl.tpl');
         }).then(function (warns) {
             db.close();
-            console.log('############', 'mail warn: ', warns.warn, ' ##############');
+            console.log('*************', 'mail warn: ', warns.warn, ' *******************');
             if (warns.warn) {
-                console.log('############', 'sendMail code: ', warns.code, '##############');
+                console.log('*************', 'sendMail code: ', warns.code, ' ******************');
             }
-            console.log('############',moment().strftime('%Y-%m-%d %H:%M'), 'all processor done ###########');
+            console.log('############', moment().strftime('%Y-%m-%d %H:%M'), 'all processor done ###########');
         }).catch(function (err) {
             db.close();
             console.log(err);

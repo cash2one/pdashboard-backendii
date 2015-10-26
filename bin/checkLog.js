@@ -30,6 +30,7 @@ exports.getLogStamp = function (opts) {
             resolve(line);
         });
         proc.on('close', function (code) {
+            rd.close();
             if (0 !== code) {
                 reject(code);
             }
@@ -80,13 +81,14 @@ exports.checkLogStamp = function (opts, db) {
                 // 数据库中存在该目录的时间戳，只将文件时间戳大于数据库的时间戳的文件处理
                 rd.on('line', function (line) {
                     var arr = line.split(' ');
-                    var fileTimestamp = +moment.fn.strptime(arr[0] + arr[1], '%Y-%m-%d %H:%M');
+                    var fileTimestamp = +moment.fn.strptime(arr[0] + ' ' + arr[1], '%Y-%m-%d %H:%M');
                     var source = arr[2].split('/').slice(-4, -1).join('/');
                     if (fileTimestamp > +moment.fn.strptime(stampIndb, '%Y-%m-%d %H:%M')) {
                         sources.push(source);
                     }
                 });
-                rd.on('close', function (){
+                proc.on('close', function (){
+                    rd.close();
                     resolve({
                         reason: reason,
                         sources: sources

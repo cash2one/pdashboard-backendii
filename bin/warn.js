@@ -67,8 +67,7 @@ exports.run = function(db, mailTplPath) {
         }).then(function (res) {
             resolve(res);
         }).catch(function (err) {
-            db.close();
-            console.log('err in warn.js: ' + err);
+            reject(err);
         })
     });
 }
@@ -429,7 +428,8 @@ function toArray(db, collName, cmd, data) {
 exports.sendMail = function (message) {
     return new Promise (function (resolve, reject) {
         var from = 'wujianwei01@baidu.com';
-        var to = ' liangjinping@baidu.com  hanbingfeng@baidu.com -c wujianwei01@baidu.com';
+        var to = ' wujianwei01@baidu.com';
+        //var to = ' liangjinping@baidu.com  hanbingfeng@baidu.com -c wujianwei01@baidu.com';
         var subject = '"$(echo -e "' + md().strftime('%Y/%m/%d')
             + 'dashboard Warning!!!\\nMIME-Version:1.0\\nContent-Type:text/html;charset=utf8")"';
         var cmd = 'echo \"' + message + '\"'  + ' | mail -s ' + subject + to + ' -- -f ' + from;
