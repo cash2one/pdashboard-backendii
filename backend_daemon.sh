@@ -33,8 +33,6 @@ function stop {
     echo "service stop"
 }
 
-echo "$CMD $1"
-
 case "$1" in
 start)
     start
@@ -50,4 +48,7 @@ restart)
     fi
     start
     ;;
+*)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
 esac
