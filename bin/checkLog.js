@@ -6,7 +6,6 @@
 
 var childProcess = require('child_process');
 var readline = require('readline');
-var mongodb = require('mongodb');
 var moment = require('moment-datetime');
 /**
  * 获取log平台日志文件时间戳
@@ -36,7 +35,7 @@ exports.getLogStamp = function (opts) {
             }
         });
     });
-}
+};
 
 /**
  * 检查log平台日志文件时间戳与存入数据库中的时间戳
@@ -57,11 +56,16 @@ exports.checkLogStamp = function (opts, db) {
                 });
             }
             else {
-                var proc = childProcess.exec(
-                    'hadoop dfs -lsr ' + '\'' + opts.sourceDir
+                var command = ''
+                    + 'hadoop dfs -lsr ' + '\'' + opts.sourceDir
                     + '/' + opts.jobname + '\''
                     + ' |grep ' + '\'00\/' + opts.jobname + '$\''
-                    + ' |awk \'{print $6" "$7" "$8}\''
+                    + ' |awk \'{print $6" "$7" "$8}\'';
+                var proc = childProcess.exec(
+                    command,
+                    {
+                        maxBuffer: 1 << 20
+                    }
                 );
                 var rd = readline.createInterface({
                     input: proc.stdout,
@@ -87,17 +91,17 @@ exports.checkLogStamp = function (opts, db) {
                         sources.push(source);
                     }
                 });
-                proc.on('close', function (){
+                proc.on('close', function () {
                     rd.close();
                     resolve({
                         reason: reason,
                         sources: sources
                     });
-                })
+                });
             }
         });
     });
-}
+};
 
 /**
  * 对于数据库中没有相应文件时间戳的则增加
@@ -106,7 +110,7 @@ exports.checkLogStamp = function (opts, db) {
  * @return {Promise}
  */
 exports.addLogStamp = function (opts, db) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         var coll = db.collection('lsp_log_timestamp');
         coll.insert(
             [{path: opts.sourceDir + '/' + opts.jobname, statestamp: opts.statestamp}],
@@ -120,7 +124,7 @@ exports.addLogStamp = function (opts, db) {
             }
         );
     });
-}
+};
 
 /**
  * 数据库中已存在该文件对应的时间戳，但是日志文件的时间戳是最新的，需要更新
@@ -143,4 +147,4 @@ exports.updateLogStamp = function (opts, db) {
             }
         );
     });
-}
+};
