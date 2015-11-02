@@ -76,30 +76,16 @@ function selectItems($logObject) {
         'performance_accountTree',
         'performance_ao_manual',
         // timeline
-        'performance_static_js_sync_loaded',
-        'performance_static_js_async_loaded',
-        'performance_static_basicInfo_start',
-        'performance_static_basicInfo_finish',
-        'performance_manage_actionloaded',
-        'performance_manage_enteraction',
-        'performance_manage_enter',
-        'performance_manage_beforemodelload',
-        'performance_manage_load_navinfo',
-        'performance_manage_load_materiallist',
-        'performance_manage_account_tree_start',
-        'performance_manage_account_tree_inited',
-        'performance_manage_ao_manual_start',
-        'performance_manage_ao_manual_nirvana_base_loaded',
-        'performance_manage_ao_manual_js_async_loaded',
-        'performance_manage_ao_manual_control_started',
-        'performance_manage_ao_manual_finished',
+        'performance_static_*',
+        'performance_manage_*',
+        'performance_manage_account_tree_*',
+        // table repaint
+        'performance_materialList_table_repaint_*',
+        // 新AO timeline 相关
+        'performance_manage_new_aomanual_*',
         // 新AO相关
         'performance_newAomanual',
-        'performance_newAomanual_start_*',
-        'performance_newAomanual_query_begin_*',
-        'performance_newAomanual_query_end_*',
-        'performance_newAomanual_polling_*',
-        'performance_newAomanual_finish_*'
+        'performance_newAomanual_*'
     );
 
     // 所有的项目都放到resultSet里,
@@ -221,11 +207,12 @@ $n2Filtered = $jsonLogs
     ->filter(array(
         // 过滤targets
         array('target', 'in', array(
-            'performance_static' => s1,
+            'performance_static' => 1,
             'performance_materialList' => 1,
             'performance_accountTree' => 1,
             'performance_ao_manual' => 1,
             'performance_newAomanual' => 1,
+            'performance_materialList_table_repaint' => 1,
             'timeline' => 1
         )),
         // 过滤pageStabled
