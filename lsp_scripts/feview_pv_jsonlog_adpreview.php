@@ -48,12 +48,12 @@ function toJsonOutput($nouse, $fields) {
 class StatReqProcessor implements \IUserProcessor {
     private $totalCount;
     private $pcCount;
-    private $mCount;
+    private $mobileCount;
 
     public function init() {
         $this->totalCount = 0;
         $this->pcCount = 0;
-        $this->mCount = 0;
+        $this->mobileCount = 0;
     }
 
     public function process($fields) {
@@ -68,7 +68,7 @@ class StatReqProcessor implements \IUserProcessor {
                 break;
             case 2:
             case '2':
-                $this->mCount = $fields[‘count’];
+                $this->mobileCount = $fields['count'];
                 break;
             default:
                 break;
@@ -78,7 +78,10 @@ class StatReqProcessor implements \IUserProcessor {
     public function fini() {
         return array(
             'target' => 'adpreview',
-            'reqTotalCount' => $this->totalCount * 2 + $this->pcCount + $this->mCount,
+            'reqOnlyTotal' => $this->totalCount,
+            'reqOnlyPc' => $this->pcCount,
+            'reqOnlyMobile' => $this->mobileCount,
+            'reqTotalCount' => $this->totalCount * 2 + $this->pcCount + $this->mobileCount,
             'reqPcCount' => $this->totalCount + $this->pcCount,
             'reqMobileCount' => $this->totalCount + $this->mobileCount
         );
@@ -93,27 +96,32 @@ class StatRespProcessor implements \IUserProcessor {
     private $banCount;
     private $invalidUserCount;
     private $invalidRespCount;
+    private $noAdsResult;
 
     public function init() {
         $this->validCount = 0;
         $this->banCount = 0;
         $this->invalidUserCount = 0;
         $this->invalidRespCount = 0;
+        $this->noAdsResult = 0;
     }
 
     public function process($fields) {
-        switch ($fields['target']) {
+        switch ($fields['result']) {
             case 'valid_preview_result':
-                $this->validCount = $fields['count'];
+                $this->validCount = $fields['resultSum'];
                 break;
             case 'ban_preview_result':
-                $this->banCount = $fields['count'];
+                $this->banCount = $fields['resultSum'];
+                break;
+            case 'no_ads_result':
+                $this->noAdsResult = $fields['resultSum'];
                 break;
             case 'invalid_preview_user':
-                $this->invalidUserCount = $fields[‘count’];
+                $this->invalidUserCount = $fields['resultSum'];
                 break;
             case 'invalid_preview_result':
-                $this->invalidRespCount = $fields[‘count’];
+                $this->invalidRespCount = $fields['resultSum'];
                 break;
             default:
                 break;
@@ -124,6 +132,7 @@ class StatRespProcessor implements \IUserProcessor {
         return array(
             'target' => 'adpreview',
             'respValidCount' => $this->validCount,
+            'respNoAdsCount' => $this->noAdsResult,
             'respBanCount' => $this->banCount,
             'respInvalidUserCount' => $this->invalidUserCount,
             'respInvalidRespCount' => $this->invalidRespCount
@@ -149,34 +158,124 @@ $reqUvLog = $reqLog
     ->select(array('target', 'device', 'count'))
     ->process(StatReqProcessor);
 
+$reqPvLog->outputAsFile(
+    'fengchao_feview_pv_jsonlog_adpreview_request',
+    '凤巢前端实况请求PV_天',
+    null,
+    true
+);
+
+$reqUvLog->outputAsFile(
+    'fengchao_feview_uv_jsonlog_adpreview_request',
+    '凤巢前端实况请求UV_天',
+    null,
+    true
+);
+
+$reqPvLog->outputAsFile(
+    'fengchao_feview_pv_jsonlog_adpreview_request_json',
+    '凤巢前端实况请求PV_天_json',
+    'toJsonOutput',
+    true
+);
+
+$reqUvLog->outputAsFile(
+    'fengchao_feview_uv_jsonlog_adpreview_request_json',
+    '凤巢前端实况请求UV_天_json',
+    'toJsonOutput',
+    true
+);
+
+$jsonLogs
+    ->filter(array(
+        array('source', '==', 'nirvana_app_liveViewer'),
+        array('target', '==', 'check_all_state')
+    ))
+    ->group(array('result', 'userid'))
+    ->countEach('*', 'count')
+    ->sort('count', 'desc')
+    ->select(array('result', 'userid', 'count'))
+    ->outputAsFile(
+        'fengchao_feview_sorted_uv_jsonlog_adpreview',
+        '凤巢前端实况UV_天_已排序',
+        null,
+        true
+    );
+
 $respLog = $jsonLogs
     ->filter(array(
         array('source', '==', 'nirvana_app_liveViewer'),
-        array('target', 'in', array(
-            'valid_preview_result' => 1,
-            'ban_preview_result' => 1,
-            'invalid_preview_user' => 1,
-            'invalid_preview_result' => 1
-        ))
+        array('target', '==', 'check_all_state')
     ))
-    ->group('target');
+    ->group(array('device', 'framekey', 'result'));
 
 $respPvLog = $respLog
     ->countEach('*', 'count')
-    ->select(array('target', 'count'))
-    ->process(StatRespProcessor);
+    ->select(array('device', 'framekey', 'result', 'count'));
 
 $respUvLog = $respLog
     ->uniqCountEach('userid', 'count')
-    ->select(array('target', 'count'))
-    ->process(StatRespProcessor);
+    ->select(array('device', 'framekey', 'result', 'count'));
 
-$resultPv = $reqPvLog
-    ->leftJoin($respPvLog, 'adpreview')
-    ->select(array(
-        'reqTotalCount', 'reqPcCount', 'reqMobileCount',
-        'respValidCount', 'respBanCount', 'respInvalidUserCount', 'respInvalidRespCount'
-    ));
+$respPvLog->outputAsFile(
+    'fengchao_feview_pv_jsonlog_adpreview_response',
+    '凤巢前端实况响应PV_天',
+    null,
+    true
+);
+
+$respUvLog->outputAsFile(
+    'fengchao_feview_uv_jsonlog_adpreview_response',
+    '凤巢前端实况响应UV_天',
+    null,
+    true
+);
+
+$respPvLog->outputAsFile(
+    'fengchao_feview_pv_jsonlog_adpreview_response_json',
+    '凤巢前端实况响应PV_天_json',
+    'toJsonOutput',
+    true
+);
+
+$respUvLog->outputAsFile(
+    'fengchao_feview_uv_jsonlog_adpreview_response_json',
+    '凤巢前端实况响应UV_天_json',
+    'toJsonOutput',
+    true
+);
+
+/**
+ * 计算分result的sum
+ */
+function computeResultSum($DQ) {
+    return $DQ
+        ->group('result')
+        ->sumEach('count', 'resultSum')
+        ->select(array(
+            'result', 'resultSum'
+        ))
+        ->process(StatRespProcessor);    
+}
+
+$respPvLog = computeResultSum($respPvLog);
+$respUvLog = computeResultSum($respUvLog);
+
+/**
+ * 组合resp和req，生成结果集
+ */
+function computeResult($reqDQ, $respDQ) {
+    return $reqDQ
+        ->leftJoin($respDQ, 'adpreview')
+        ->select(array(
+            'reqTotalCount', 'reqPcCount', 'reqMobileCount',
+            'reqOnlyTotal', 'reqOnlyPc', 'reqOnlyMobile',
+            'respValidCount', 'respNoAdsCount', 'respBanCount', 'respInvalidUserCount', 'respInvalidRespCount'
+        ));
+}
+
+$resultPv = computeResult($reqPvLog, $respPvLog);
+$resultUv = computeResult($reqUvLog, $respUvLog);
 
 $resultPv->outputAsFile(
     'fengchao_feview_pv_jsonlog_adpreview',
@@ -192,33 +291,6 @@ $resultPv->outputAsFile(
     true
 );
 
-/**
- * 计算实况的稳定比
- */
-function computeSuccRatio($fields) {
-    return array(
-        'ratio' => $fields['respValidCount'] / (
-            $fields['respValidCount']
-            + $fields['respBanCount']
-            + $fields['respInvalidUserCount']
-            + $fields['respInvalidRespCount']
-        )
-    );
-}
-
-$resultPv->select(computeSuccRatio)
-    ->outputAsNumeric(
-        'fengchao_feview_succ_ratio_jsonlog_adpreview',
-        '凤巢前端实况正常返回比'
-    );
-
-$resultUv = $reqUvLog
-    ->leftJoin($respUvLog, 'adpreview')
-    ->select(array(
-        'reqTotalCount', 'reqPcCount', 'reqMobileCount',
-        'respValidCount', 'respBanCount', 'respInvalidUserCount', 'respInvalidRespCount'
-    ));
-
 $resultUv->outputAsFile(
     'fengchao_feview_uv_jsonlog_adpreview',
     '凤巢前端实况UV_天',
@@ -232,6 +304,27 @@ $resultUv->outputAsFile(
     'toJsonOutput',
     true
 );
+
+
+/**
+ * 计算实况的稳定比
+ */
+function computeSuccRatio($fields) {
+    return array(
+        'ratio' => $fields['reqTotalCount'] / (
+            $fields['respValidCount']
+            + $fields['respBanCount']
+            + $fields['respInvalidUserCount']
+            + $fields['respInvalidRespCount']
+        )
+    );
+}
+
+$resultPv->select(computeSuccRatio)
+    ->outputAsNumeric(
+        'fengchao_feview_succ_ratio_jsonlog_adpreview',
+        '凤巢前端实况正常返回比'
+    );
 
 $resultUv->select(computeSuccRatio)
     ->outputAsNumeric(

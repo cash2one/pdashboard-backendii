@@ -84,8 +84,8 @@ class StatProcessor implements \IUserProcessor {
  * 整理账户树数据。
  */
 function extractAcctTreeData($object) {
-    $spent = floatval($object['performance_accountTree_start_0'])
-        - floatval($object['performance_accountTree_finish_3']);
+    $spent = floatval($object['performance_accountTree_finish_3'])
+        - floatval($object['performance_accountTree_start_0']);
     return array(
         'path' => $object['path'],
         'spent' => $spent,
@@ -106,6 +106,28 @@ $acctTreeLogs = DQuery::input()
     ->group(array('path', 'pageStabled'))
     ->each(
         DQuery::sort('spent', 'asc')
-            ->process(StatProcess)
-    )
+            ->process(StatProcessor)
+    )->select(array(
+        'path', 'pageStabled', 'pv', 'average', 't50', 't80', 't95', 'gte100'
+    ));
 
+/**
+ * 将数据转成JSON输出
+ */
+function toJsonOutput($nouse, $fields) {
+    return json_encode($fields)."\n";
+}
+
+$acctTreeLogs->outputAsFile(
+    "fengchao_feview_performance_jsonlog_nirvanaII_acctTree_day",
+    "账户树刷新时间_首屏与非首屏_天",
+    null,
+    true
+);
+
+$acctTreeLogs->outputAsFile(
+    "fengchao_feview_performance_jsonlog_nirvanaII_acctTree_json_day",
+    "账户树刷新时间_首屏与非首屏_天_JSON",
+    'toJsonOutput',
+    true
+);
