@@ -427,10 +427,10 @@ function toArray(db, collName, cmd, data) {
  */
 exports.sendMail = function (message) {
     return new Promise (function (resolve, reject) {
-        var from = 'wujianwei01@baidu.com';
-        var to = ' liangjinping@baidu.com  hanbingfeng@baidu.com -c wujianwei01@baidu.com';
+        var from = 'fc-fe@baidu.com';
+        var to = ' liangjinping@baidu.com  hanbingfeng@baidu.com  fcfe-inf@baidu.com  -c liuzeyin@baidu.com,liangjinping@baidu.com,fcfe-mgt@baidu.com';
         var subject = '"$(echo -e "' + md().strftime('%Y/%m/%d')
-            + 'dashboard Warning!!!\\nMIME-Version:1.0\\nContent-Type:text/html;charset=utf8")"';
+            + '[fcfe-inf]dashboard Warning\\nMIME-Version:1.0\\nContent-Type:text/html;charset=utf8")"';
         var cmd = 'echo \"' + message + '\"'  + ' | mail -s ' + subject + to + ' -- -f ' + from;
         var send = childProcess.exec(cmd);
         send.on('close', function (code) {
