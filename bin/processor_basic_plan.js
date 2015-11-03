@@ -31,8 +31,8 @@ exports.basicPlanIndex = function (opts, db) {
             finish: _.noop
         }),
         basicPlanSpliter: new Processor({
-            start: function() {
-                    this.logs = [];
+            start: function () {
+                this.logs = [];
             },
             handler: function (evt) {
                 var line = evt.data;
@@ -45,6 +45,34 @@ exports.basicPlanIndex = function (opts, db) {
                 var logs = _.groupBy(this.logs, function (info) {
                     return info.path;
                 });
+                var docs = [];
+                var adpreviewColl;
+                if (opts.jobname === 'fengchao_feview_pv_jsonlog_adpreview_json') {
+                    docs = _.map(this.logs, function (item) {
+                        return _.extend({
+                            recordTimestamp: recordTimestamp
+                        }, item);
+                    });
+                    adpreviewColl = db.collection('adpreview_frontend_response_pv');
+                    adpreviewColl.remove({recordTimestamp: recordTimestamp}, function (err, result) {
+                        adpreviewColl.insert(docs, function (err, result) {
+                            me.emit('end', {});
+                        });
+                    });
+                }
+                else if (opts.jobname === 'fengchao_feview_uv_jsonlog_adpreview_json') {
+                    docs = _.map(this.logs, function (item) {
+                        return _.extend({
+                            recordTimestamp: recordTimestamp
+                        }, item);
+                    });
+                    adpreviewColl = db.collection('adpreview_frontend_response_uv');
+                    adpreviewColl.remove({recordTimestamp: recordTimestamp}, function (err, result) {
+                        adpreviewColl.insert(docs, function (err, result) {
+                            me.emit('end', {});
+                        });
+                    });
+                }
                 var timeline = {};
                 _.each(logs, function (list, path, log) {
                     var collection;
@@ -66,7 +94,7 @@ exports.basicPlanIndex = function (opts, db) {
                     if (collection) {
                         if (collection !== 'performance_emanage_basic') {
                             // nirvanaII 中取plan_basic 和 keywordii
-                            basic = _.filter(basic, function(info) {
+                            basic = _.filter(basic, function (info) {
                                 return (info.item === 'performance_newAomanual_query_end_2') ||
                                 (!(/performance_emanage/.test(info.target)) && info.target === info.item);
                             });
@@ -87,7 +115,7 @@ exports.basicPlanIndex = function (opts, db) {
                                 count: parseFloat(info.pv),
                                 average: parseFloat(info.average),
                                 item: info.item
-                            }
+                            };
                         }).indexBy('item').each(function (info) {
                             delete info.item;
                         }).value();
@@ -118,7 +146,7 @@ exports.basicPlanIndex = function (opts, db) {
                                 count: parseFloat(info.pv),
                                 average: parseFloat(info.average),
                                 item: info.item
-                            }
+                            };
                         }).indexBy('item').each(function (info) {
                             delete info.item;
                         }).value();
@@ -142,5 +170,5 @@ exports.basicPlanIndex = function (opts, db) {
                 }
             }
         })
-    }
+    };
 };

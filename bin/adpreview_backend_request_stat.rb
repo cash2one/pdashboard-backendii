@@ -32,8 +32,8 @@ device_dict = {
 doc = file.reduce({}) do |doc, line|
   device, manual, machine = line.split
   doc[device_dict[device]] ||= {}
-  doc[device_dict[device]]["manual"] = manual
-  doc[device_dict[device]]["machine"] = machine
+  doc[device_dict[device]]["adpreview_backend_request_manual"] = manual
+  doc[device_dict[device]]["adpreview_backend_request_machine"] = machine
   doc
 end.select{|k| !k.nil?}
 doc["recordTimestamp"] = options[:datetime].strftime('%s').to_i * 1000
