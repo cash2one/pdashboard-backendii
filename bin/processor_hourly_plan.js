@@ -47,7 +47,7 @@ exports.basicPlanIndex = function (opts, db) {
                 });
                 var docs = [];
                 var adpreviewColl;
-                if (opts.jobname === 'fengchao_feview_pv_jsonlog_adpreview_json') {
+                if (opts.jobname === 'fengchao_feview_pv_jsonlog_adpreview_json_hourly') {
                     docs = _.map(this.logs, function (item) {
                         return _.extend({
                             recordTimestamp: recordTimestamp
@@ -62,7 +62,7 @@ exports.basicPlanIndex = function (opts, db) {
                     });
                 }
 
-                if (opts.jobname === 'fengchao_feview_uv_jsonlog_adpreview_json') {
+                if (opts.jobname === 'fengchao_feview_uv_jsonlog_adpreview_json_hourly') {
                     docs = _.map(this.logs, function (item) {
                         return _.extend({
                             recordTimestamp: recordTimestamp
