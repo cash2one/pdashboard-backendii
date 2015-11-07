@@ -42,7 +42,9 @@ doc["recordTimestamp"] = options[:datetime].strftime('%s').to_i * 1000
 puts doc
 
 client = Mongo::Client.new(['127.0.0.1:27017'], :database => 'pdashboard', :connect => :direct)
-coll = client[:adpreview_backend_request_stat, :capped => true]
+collName = :adpreview_backend_request_stat
+collName = :adpreview_backend_request_stat_hourly if !options[:time].nil?
+coll = client[collName, :capped => true]
 coll.delete_many(:recordTimestamp => doc["recordTimestamp"])
 coll.insert_one(doc)
 result = coll.find()
