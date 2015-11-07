@@ -106,14 +106,8 @@ exports.run = function () {
                 }, function (err) {
                 });
             })
-        ).then(function () {
-            return require('./warn').run(db, config['work-home'] + '/bin/mailTpl.tpl');
-        }).then(function (warns) {
+        ).then(function (warns) {
             db.close();
-            console.log('*************', 'mail warn: ', warns.warn, ' *******************');
-            if (warns.warn) {
-                console.log('*************', 'sendMail code: ', warns.code, ' ******************');
-            }
             console.log('############', moment().strftime('%Y-%m-%d %H:%M'), 'all processor done ###########');
         }).catch(function (err) {
             db.close();
