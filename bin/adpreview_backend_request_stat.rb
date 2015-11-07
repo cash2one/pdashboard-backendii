@@ -5,6 +5,7 @@ require "optparse/date"
 require "optparse/time"
 
 options = {}
+puts ARGV
 OptionParser.new do |opts|
   opts.banner = ""
   options[:path] = "data"
@@ -18,11 +19,12 @@ OptionParser.new do |opts|
     options[:path] = p
   end
 end.parse!
+puts ARGV
 puts options
-options[:datetime] = options[:date].to_datetime
+options[:datetime] = options[:date].to_datetime if !options[:date].nil?
 options[:datetime] = options[:time].to_datetime if !options[:time].nil?
-filepath=options[:date].strftime('%Y%m%d')
-filepath=options[:time].strftime('%Y%m%d/%H00') if !options[:time].nil?
+filepath=options[:date].strftime('%Y%m%d') if !options[:date].nil?
+filepath=options[:time].strftime('%Y%m%d/%H') if !options[:time].nil?
 filepath="#{options[:path]}/#{filepath}/request_stat"
 file = File.open(filepath, "r")
 device_dict = {
