@@ -38,7 +38,8 @@ doc = file.reduce({}) do |doc, line|
   doc[device_dict[device]]["adpreview_backend_request_machine"] = machine
   doc
 end.select{|k| !k.nil?}
-doc["recordTimestamp"] = (options[:datetime].strftime('%s').to_i - 8 * 3600) * 1000
+doc["recordTimestamp"] = options[:datetime].strftime('%s').to_i * 1000
+doc["recordTimestamp"] = doc["recordTimestamp"] - (8 * 3600 * 1000) if options[:time].nil?
 puts doc
 
 client = Mongo::Client.new(['127.0.0.1:27017'], :database => 'pdashboard', :connect => :direct)
