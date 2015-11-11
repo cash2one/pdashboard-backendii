@@ -15,7 +15,7 @@ var getItem = require('./get_item').getItem;
 var config = JSON.parse(fs.readFileSync(process.env.HOME + '/.nightingale.conf', 'utf8'));
 
 // 加载日志校验模块
-var checkLog = require('./checkLog');
+var checkLog = require('./checkLog_hourly');
 var getLogStamp = checkLog.getLogStamp;
 var checkLogStamp = checkLog.checkLogStamp;
 var addLogStamp = checkLog.addLogStamp;
@@ -68,42 +68,39 @@ exports.run = function () {
                     jobname: jobname,
                     sourceDir: sourceDir,
                 };
-                return getLogStamp(opts).then(function (statestamp) {
-                    opts.statestamp = statestamp;
-                    return checkLogStamp(opts, db).then(function (result) {
-                        if (result.reason) {
-                            addLogStamp(opts, db);
-                            return getItem(opts, config['data-path'], result.reason).then(function (){
-                                return Promise.all(_.map(result.sources, function (source) {
-                                    opts.destination = config['data-path'] + '/' + source + '/' + opts.jobname;
-                                    var timeArr = source.split('/').slice(1);
-                                    opts.recordTimestamp = +moment.fn.strptime(timeArr[0] + timeArr[1], '%Y%m%d%H%M');
-                                    return processLog(opts, db, map);
-                                    })
-                                )
-                            }, function (reject) {
-                            });
-                        }
-                        else {
-                            updateLogStamp(opts, db);
-                            return Promise.all(
-                                _.map(result.sources, function(source) {
-                                    opts.source = source;
-                                    return getItem(opts, config['data-path'], result.reason)
-                                        .then(function (code){
-                                            opts.destination = config['data-path'] + '/' + source + '/' + opts.jobname;
-                                            var timeArr = source.split('/').slice(1);
-                                            opts.recordTimestamp = +moment.fn.strptime(timeArr[0] + timeArr[1], '%Y%m%d%H%M');
-                                            return processLog(opts, db, map);
-                                        })
+
+                return checkLogStamp(opts, db).then(function (result) {
+                    if (result.reason) {
+                        addLogStamp(opts, db);
+                        return getItem(opts, config['data-path'], result.reason).then(function (){
+                            return Promise.all(_.map(result.sources, function (source) {
+                                opts.destination = config['data-path'] + '/' + source + '/' + opts.jobname;
+                                var timeArr = source.split('/').slice(1);
+                                opts.recordTimestamp = +moment.fn.strptime(timeArr[0] + timeArr[1], '%Y%m%d%H%M');
+                                return processLog(opts, db, map);
                                 })
-                            );
-                        }
-                    },function () {
-                        // 数据库中时间戳与文件时间戳一致
-                        console.log(opts.jobname, '*********statestamp equal', 'exit');
-                    });
-                }, function (err) {
+                            )
+                        }, function (reject) {
+                        });
+                    }
+                    else {
+                        updateLogStamp(opts, db);
+                        return Promise.all(
+                            _.map(result.sources, function(source) {
+                                opts.source = source;
+                                return getItem(opts, config['data-path'], result.reason)
+                                    .then(function (code){
+                                        opts.destination = config['data-path'] + '/' + source + '/' + opts.jobname;
+                                        var timeArr = source.split('/').slice(1);
+                                        opts.recordTimestamp = +moment.fn.strptime(timeArr[0] + timeArr[1], '%Y%m%d%H%M');
+                                        return processLog(opts, db, map);
+                                    })
+                            })
+                        );
+                    }
+                },function () {
+                    // 数据库中时间戳与文件时间戳一致
+                    console.log(opts.jobname, '*********statestamp equal', 'exit');
                 });
             })
         ).then(function (warns) {
