@@ -82,8 +82,9 @@ exports.checkLogStamp = function (opts, db) {
                 var source = arr[2].split('/').slice(-4, -1).join('/');
                 if (fileTimestamp > +moment.fn.strptime(stampIndb, '%Y-%m-%d %H:%M')) {
                     sources.push(source);
-                    if (fileTimestamp > newStatestamp) {
-                        newStatestamp = fileTimestamp;
+                    // 选取本次更新最大的时间，作为数据表更新时间戳
+                    if (fileTimestamp > +moment.fn.strptime(newStatestamp, '%Y-%m-%d %H:%M')) {
+                        newStatestamp = arr[0] + ' ' + arr[1];
                     }
                 }
             });
