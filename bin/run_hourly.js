@@ -70,6 +70,7 @@ exports.run = function () {
                 };
 
                 return checkLogStamp(opts, db).then(function (result) {
+                    opts.statestamp = result.statestamp;
                     if (result.reason) {
                         addLogStamp(opts, db);
                         return getItem(opts, config['data-path'], result.reason).then(function (){

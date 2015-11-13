@@ -74,6 +74,7 @@ exports.checkLogStamp = function (opts, db) {
             else {
                 stampIndb = docs[0].statestamp;
             }
+            var newStatestamp = stampIndb;
             // 数据库中存在该目录的时间戳，只将文件时间戳大于数据库的时间戳的文件处理
             rd.on('line', function (line) {
                 var arr = line.split(' ');
@@ -81,6 +82,9 @@ exports.checkLogStamp = function (opts, db) {
                 var source = arr[2].split('/').slice(-4, -1).join('/');
                 if (fileTimestamp > +moment.fn.strptime(stampIndb, '%Y-%m-%d %H:%M')) {
                     sources.push(source);
+                    if (fileTimestamp > newStatestamp) {
+                        newStatestamp = fileTimestamp;
+                    }
                 }
             });
 
@@ -88,7 +92,8 @@ exports.checkLogStamp = function (opts, db) {
                 rd.close();
                 resolve({
                     reason: reason,
-                    sources: sources
+                    sources: sources,
+                    statestamp: newStatestamp
                 });
             });
         });
