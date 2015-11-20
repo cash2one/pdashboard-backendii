@@ -220,7 +220,10 @@ $n2Filtered = $jsonLogs
         // 过滤logVersion
         array('logVersion', '==', '3.0'),
         // 过滤iframeShowed
-        array('iframeShowed', '==', null)
+        array('iframeShowed', '==', null),
+        // 过滤actionfwd，只找跳转过1次的
+        array('actionfwd', '==', 1)
+
     ))
     ->filter(filterPageInactived)
     ->leftJoin($eventsSessions, 'logSessionId')
