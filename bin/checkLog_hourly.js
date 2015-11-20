@@ -48,57 +48,55 @@ exports.checkLogStamp = function (opts, db) {
     return new Promise(function (resolve, reject) {
         var coll = db.collection('lsp_log_timestamp');
         coll.find({path: opts.sourceDir + '/' + opts.jobname}).toArray(function (err, docs) {
-            // console.log(docs);
-            if (docs.length > 0 && docs[0].statestamp === opts.statestamp) {
-                // 若数据库中存的时间戳和获取文件的时间戳一致， resolve
-                reject({
-                    reason: -1
-                });
+            var command = ''
+                + 'hadoop dfs -lsr ' + '\'' + opts.sourceDir
+                + '/' + opts.jobname + '\''
+                + ' |grep ' + '\'00\/' + opts.jobname + '$\''
+                + ' |awk \'{print $6" "$7" "$8}\'';
+            var proc = childProcess.exec(
+                command,
+                {
+                    maxBuffer: 1 << 20
+                }
+            );
+            var rd = readline.createInterface({
+                input: proc.stdout,
+                output: process.stdout,
+                terminal: false
+            });
+            var sources = [];
+            var stampIndb = '';
+            var reason = 0;
+            if (docs.length === 0) {
+                stampIndb = '1980-01-01 00:50';
+                reason = 1;
             }
             else {
-                var command = ''
-                    + 'hadoop dfs -lsr ' + '\'' + opts.sourceDir
-                    + '/' + opts.jobname + '\''
-                    + ' |grep ' + '\'00\/' + opts.jobname + '$\''
-                    + ' |awk \'{print $6" "$7" "$8}\'';
-                var proc = childProcess.exec(
-                    command,
-                    {
-                        maxBuffer: 1 << 20
-                    }
-                );
-                var rd = readline.createInterface({
-                    input: proc.stdout,
-                    output: process.stdout,
-                    terminal: false
-                });
-                var sources = [];
-                var stampIndb = '';
-                var reason = 0;
-                if (docs.length === 0) {
-                    stampIndb = '1980-01-01 00:50';
-                    reason = 1;
-                }
-                else {
-                    stampIndb = docs[0].statestamp;
-                }
-                // 数据库中存在该目录的时间戳，只将文件时间戳大于数据库的时间戳的文件处理
-                rd.on('line', function (line) {
-                    var arr = line.split(' ');
-                    var fileTimestamp = +moment.fn.strptime(arr[0] + ' ' + arr[1], '%Y-%m-%d %H:%M');
-                    var source = arr[2].split('/').slice(-4, -1).join('/');
-                    if (fileTimestamp > +moment.fn.strptime(stampIndb, '%Y-%m-%d %H:%M')) {
-                        sources.push(source);
-                    }
-                });
-                proc.on('close', function () {
-                    rd.close();
-                    resolve({
-                        reason: reason,
-                        sources: sources
-                    });
-                });
+                stampIndb = docs[0].statestamp;
             }
+            var newStatestamp = stampIndb;
+            // 数据库中存在该目录的时间戳，只将文件时间戳大于数据库的时间戳的文件处理
+            rd.on('line', function (line) {
+                var arr = line.split(' ');
+                var fileTimestamp = +moment.fn.strptime(arr[0] + ' ' + arr[1], '%Y-%m-%d %H:%M');
+                var source = arr[2].split('/').slice(-4, -1).join('/');
+                if (fileTimestamp > +moment.fn.strptime(stampIndb, '%Y-%m-%d %H:%M')) {
+                    sources.push(source);
+                    // 选取本次更新最大的时间，作为数据表更新时间戳
+                    if (fileTimestamp > +moment.fn.strptime(newStatestamp, '%Y-%m-%d %H:%M')) {
+                        newStatestamp = arr[0] + ' ' + arr[1];
+                    }
+                }
+            });
+
+            proc.on('close', function () {
+                rd.close();
+                resolve({
+                    reason: reason,
+                    sources: sources,
+                    statestamp: newStatestamp
+                });
+            });
         });
     });
 };
