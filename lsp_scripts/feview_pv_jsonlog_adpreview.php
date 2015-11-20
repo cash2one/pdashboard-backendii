@@ -58,17 +58,18 @@ class StatReqProcessor implements \IUserProcessor {
 
     public function process($fields) {
         switch ($fields['device']) {
+            // device有可能是额外的值，为避免出错都用了+=
             case 0:
             case '0':
-                $this->totalCount = $fields['count'];
+                $this->totalCount += $fields['count'];
                 break;
             case 1:
             case '1':
-                $this->pcCount = $fields['count'];
+                $this->pcCount += $fields['count'];
                 break;
             case 2:
             case '2':
-                $this->mobileCount = $fields['count'];
+                $this->mobileCount += $fields['count'];
                 break;
             default:
                 break;
@@ -186,18 +187,44 @@ $reqUvLog->outputAsFile(
     true
 );
 
-$jsonLogs
+$checkAllStateLogs = $jsonLogs
     ->filter(array(
         array('source', '==', 'nirvana_app_liveViewer'),
         array('target', '==', 'check_all_state')
-    ))
+    ));
+
+$checkAllStateLogs
     ->group(array('result', 'userid'))
     ->countEach('*', 'count')
     ->sort('count', 'desc')
-    ->select(array('result', 'userid', 'count'))
+    ->select(array('result', 'userid', 'optid', 'count'))
     ->outputAsFile(
         'fengchao_feview_sorted_uv_jsonlog_adpreview',
         '凤巢前端实况UV_天_已排序',
+        null,
+        true
+    );
+
+$checkAllStateLogs
+    ->group(array('result', 'optid'))
+    ->countEach('*', 'count')
+    ->sort('count', 'desc')
+    ->select(array('result', 'optid', 'count'))
+    ->outputAsFile(
+        'fengchao_feview_sorted_optid_jsonlog_adpreview',
+        '凤巢前端实况_OPTID_天_已排序',
+        null,
+        true
+    );
+
+$checkAllStateLogs
+    ->group(array('result', 'optid', 'userid'))
+    ->countEach('*', 'count')
+    ->sort('count', 'desc')
+    ->select(array('result', 'userid', 'optid', 'count'))
+    ->outputAsFile(
+        'fengchao_feview_sorted_userid_optid_jsonlog_adpreview',
+        '凤巢前端实况_OPTID_USERID_天_已排序',
         null,
         true
     );
