@@ -125,17 +125,74 @@ function selectItems($logObject) {
 }
 
 /**
- * 统计processor，上游送来group过的，排序过的性能指标。在这里计算分位值、pv和平均值。
+ * 统计processor，上游送来group过的，按topK排序过的性能指标。在这里计算分位值和pv。
  */
 class StatProcessor implements \IUserProcessor {
     private $values;
+    private $count;
+
+    public function init() {
+        $this->values = array();
+        $this->count = 0;
+    }
+
+    public function process($fields) {
+        if ($this->count == 0) {
+            $this->count = $fields['count'];
+        }
+        $this->values[] = $fields['value'];    
+    }
+
+    public function fini() {
+        // 在只有topK的情况下尽可能的算出50、80、95分位值
+        
+        // 结果存放处
+        $res = array();
+        $res['pv'] = $this->count;
+        $topKcount = count($this->values);
+        if ($topKcount == $this->count) {
+            // 等于总count的情况，values就是数据全集，求出50、80、95分位值
+            $res['t95'] = $this->values[floor($this->count * 0.05)];
+            $res['t80'] = $this->values[floor($this->count * 0.20)];
+            $res['t50'] = $this->values[floor($this->count * 0.50)];
+        }
+        else if ($topKcount < $this->count) {
+            // topK小于总count的情况，values是部分，尽量算
+            // 95分位值
+            $pos = floor($this->count * 0.05);
+            if ($pos <= $topKcount) {
+                $res['t95'] = $this->values[$pos];
+            }
+            // 80分位值
+            $pos = floor($this->count * 0.20);
+            if ($pos <= $topKcount) {
+                $res['t80'] = $this->values[$pos];
+            }
+            // 50分位值
+            $pos = floor($this->count * 0.50);
+            if ($pos <= $topKcount) {
+                $res['t50'] = $this->values[$pos];
+            }
+        }
+        // else, topKcount大于总count，不可能出现
+
+        return $res;
+    }
+}
+
+/**
+ * 计算平均数和因大于100s被筛掉的log
+ */
+class AverageProcessor implements \IUserProcessor {
     private $sum;
+    private $count;
+
     // 因大于100s而过滤的pv
     private $gte100Count;
 
     public function init() {
-        $this->values = array();
         $this->sum = 0;
+        $this->count = 0;
         $this->gte100Count = 0;
     }
 
@@ -152,18 +209,14 @@ class StatProcessor implements \IUserProcessor {
             return;
         }
 
-        $this->values[] = $v;
         $this->sum += $v;
+        $this->count++;
     }
 
     public function fini() {
-        $count = count($this->values);
         return array(
-            'pv' => $count,
-            'average' => $this->sum / $count,
-            't95' => $this->values[floor($count * 0.95)],
-            't80' => $this->values[floor($count * 0.80)],
-            't50' => $this->values[floor($count * 0.50)],
+            'count' => $this->count,
+            'average' => $this->sum / $this->count,
             'gte100' => $this->gte100Count
         );
     }
@@ -173,14 +226,32 @@ class StatProcessor implements \IUserProcessor {
  * 对传入的DQuery对象进行统计
  */
 function doStat($DQ) {
-    return $DQ->group(
-        array('path', 'item', 'target')
-    )->each(
-        DQuery::sort('value', 'asc')
-            ->process(StatProcessor)
-    )->select(array(
-        'item', 'target', 'path', 'pv', 'average', 't50', 't80', 't95', 'gte100'
-    ))->sort(array('path', 'target', 'item'));
+    // 先定下分组条件
+    $groupCond = array('path', 'item', 'target');
+    // 原始log按照path、item、target分组
+    $grouped = $DQ->group($groupCond);
+    // 算平均数，gte100
+    $averaged = $grouped->each(
+        DQuery::process(AverageProcessor)
+    )
+    ->select(array('path', 'item', 'target', 'average', 'gte100', 'count'));
+    // 原始log滤掉负数和大于100s
+    $filtered = $DQ->filter(array(
+        array('value', '<=', 100000),
+        array('value', '>', 0)
+    ));
+    // 原始log求topK，K定为 (300, 000)，这样可以算出最大(6, 000, 000)(600w)
+    // 个pv的95分位值
+    // 然后混上average
+    return $filtered
+        ->group($groupCond)
+        ->topEach('value', 300000)
+        ->leftJoin($averaged, $groupCond)
+        ->group($groupCond)
+        ->processEach(StatProcessor)
+        ->select(array(
+            'item', 'target', 'path', 'pv', 'average', 't50', 't80', 't95', 'gte100'
+        ))->sort($groupCond);
 }
 
 /**
@@ -210,7 +281,6 @@ $n2Filtered = $jsonLogs
             'performance_static' => 1,
             'performance_materialList' => 1,
             'performance_accountTree' => 1,
-            'performance_ao_manual' => 1,
             'performance_newAomanual' => 1,
             'performance_materialList_table_repaint' => 1,
             'timeline' => 1
@@ -292,7 +362,6 @@ $nFiltered = $jsonLogs
             'performance_materialList' => 1,
             'performance_accountTree' => 1,
             'performance_ao_manual' => 1,
-            'performance_static' => 1,
             'performance_emanage_action_enter' => 1,
             'performance_emanage_action_render' => 1,
             'performance_emanage_action_rendered' => 1,
