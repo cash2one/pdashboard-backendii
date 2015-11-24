@@ -34,7 +34,7 @@ function extractLogData($object) {
 
 $nirvanaPageLoadLogs = DQuery::input()
     ->select(extractLogData)
-    ->filter(array('target', '==', 'NIRVANA_PAGE_LOAD'));
+    ->filter(array('target', '==', 'nirvana_authentication_passed'));
 
 $nirvanaPageLoadPv = $nirvanaPageLoadLogs
     ->count('*', 'pageLoadPv')
