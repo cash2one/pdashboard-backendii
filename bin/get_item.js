@@ -62,12 +62,12 @@ exports.getItem = function (opts, dataPath, reason) {
                     reject(1);
                 }
             }
-            if (fs.existsSync(destination + '/' + (reason === 1 ? '' : opts.jobname))) {
-                resolve(0);
+            var filePath = destination + '/' + (reason === 1 ? '' : opts.jobname);
+            if (fs.existsSync(filePath)) {
+                fs.removeSync(filePath);
             }
-            else {
-                execute(command).then(resolve, reject);
-            }
+            
+            execute(command).then(resolve, reject);
         }); 
     });
 }
