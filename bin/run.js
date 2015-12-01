@@ -32,43 +32,15 @@ var argv = require('yargs')
     .example('', '$0 -m -t')
     .argv;
 
-var processorMap = {
-    logReader: {
-        up: [],
-        down: [
-            'planDataProcessor',
-            'keywordDataProcessor',
-            'timelineDataProcessor',
-            'emanageDataProcessor',
-            'adpreviewPVDataProcessor',
-            'adpreviewUVDataProcessor'
-        ]
-    },
-    planDataProcessor: {
-        up: ['logReader'],
-        down: []
-    },
-    keywordDataProcessor: {
-        up: ['logReader'],
-        down: []
-    },
-    timelineDataProcessor: {
-        up: ['logReader'],
-        down: []
-    },
-    emanageDataProcessor: {
-        up: ['logReader'],
-        down: []
-    },
-    adpreviewPVDataProcessor: {
-        up: ['logReader'],
-        down: []
-    },
-    adpreviewUVDataProcessor: {
-        up: ['logReader'],
-        down: []
-    }
-};
+// 映射日志处理器
+var processorMaps = require('./maps');
+var unionMap = {};
+_.each(processorMaps, function (map) {
+    _.extend(unionMap, map);
+});
+
+// 日志处理器启动器
+var launcher = require('./processor/launcher');
 
 /**
  * 下载文件，并处理
@@ -132,7 +104,7 @@ exports.run = function () {
         }).then(function (args) {
             // execute log perocessor
             console.info('[info]', 'updating logs');
-            return require('./processor/launcher').launch(processorMap, args, {
+            return launcher.launch(unionMap, args, {
                 db: db,
                 config: config
             }).then(
