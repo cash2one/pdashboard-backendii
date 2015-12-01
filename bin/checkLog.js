@@ -3,6 +3,7 @@
  * @author wujianwei01@baidu.com
  *
  */
+/* eslint-env node */
 
 var childProcess = require('child_process');
 var readline = require('readline');
@@ -33,6 +34,65 @@ exports.getLogStamp = function (opts) {
             if (0 !== code) {
                 reject(code);
             }
+        });
+    });
+};
+
+exports.checkForUpdating = function (opts, db) {
+    return new Promise(function (resolve, reject) {
+        console.info('[info]', 'checking', opts.jobname);
+        var coll = db.collection('lsp_log_timestamp');
+        coll.find({path: opts.sourceDir + '/' + opts.jobname}).toArray(function (err, docs) {
+            var datetimefmt = '%Y-%m-%d %H:%M';
+            var command = ''
+                + 'hadoop dfs -lsr ' + '\'' + opts.sourceDir
+                + '/' + opts.jobname + '\''
+                + ' |grep ' + '\'00\/' + opts.jobname + '$\''
+                + ' |awk \'{print $6" "$7" "$8}\'';
+            var proc = childProcess.exec(
+                command,
+                {
+                    maxBuffer: 1 << 20
+                }
+            );
+            var rd = readline.createInterface({
+                input: proc.stdout,
+                output: process.stdout,
+                terminal: false
+            });
+            // file pathes to update
+            var pathes = [];
+            var origDatetime = '1970-01-01 00:00';
+            if (!err && docs.length !== 0) {
+                origDatetime = docs[0].statestamp;
+            }
+            var origTimestamp = +moment.fn.strptime(origDatetime, datetimefmt);
+            var newDatetime = origDatetime;
+            var newTimestamp = origTimestamp;
+            rd.on('line', function (line) {
+                var itemList = line.split(' ');
+                var date = itemList[0];
+                var time = itemList[1];
+                var filepath = itemList[2];
+                var fileTimestamp = +moment.fn.strptime(date + ' ' + time, datetimefmt);
+                if (fileTimestamp > origTimestamp) {
+                    pathes.push(filepath);
+                    if (fileTimestamp > newTimestamp) {
+                        newTimestamp = fileTimestamp;
+                        newDatetime = date + ' ' + time;
+                    }
+                }
+            });
+            proc.on('close', function () {
+                rd.close();
+                resolve({
+                    oldTimestamp: origTimestamp,
+                    newTimstampe: newTimestamp,
+                    oldDatetime: origDatetime,
+                    newDatetime: newDatetime,
+                    pathes: pathes
+                });
+            });
         });
     });
 };
