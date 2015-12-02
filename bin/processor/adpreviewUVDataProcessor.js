@@ -35,7 +35,7 @@ module.exports = new Processor({
         if (/fengchao_feview_uv_jsonlog_adpreview_json/.test(jobname)
         ) {
             info = JSON.parse(line);
-            info.timestamp = evt.timestamp;
+            :.timestamp = evt.timestamp;
             if (evt.period === 'hourly') {
                 this.hourlyLogs.push(info);
             }

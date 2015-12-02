@@ -9,17 +9,6 @@
 var _ = require('underscore');
 var Processor = require('./Processor');
 
-function cover2document(logs) {
-    var list = _.groupBy(logs, 'timestamp');
-    return _.chain(list).map(function (list, timestamp) {
-        return _.chain(list).map(function (info) {
-            return _.extend(_.omit(info, 'timestamp'), {
-                recordTimestamp: +timestamp
-            });
-        }).value();
-    }).flatten().value();
-}
-
 module.exports = new Processor({
     start: function (options) {
         Processor.prototype.start.apply(this, arguments);
@@ -72,14 +61,14 @@ module.exports = new Processor({
         var context = me.getContext();
         var db = context.db;
         var pendingJobs = [];
+        var record = {};
 
         if (this.logs.length) {
-            var record = {};
-
             _.each(this.logs, function (item, i) {
                 var attrName = item.device.toLowerCase() + '_' + item.seoFlag;
-                record[attrName] = item;
                 record.recordTimestamp = item.timestamp;
+                delete item.timestamp;
+                record[attrName] = item;
             });
 
             pendingJobs.push(

@@ -49,10 +49,11 @@ module.exports = new Processor({
         var context = me.getContext();
         var db = context.db;
         var pendingJobs = [];
+        var record;
 
         if (this.logs.length) {
             var BAN_REASON = {quota: '8501', frequency: '8904'};
-            var record = {};
+            record = {bannedForQuota: 0, bannedForFreq: 0};
 
             _.each(this.logs, function (info) {
                 var isQuota = info.reason === BAN_REASON.quota;
