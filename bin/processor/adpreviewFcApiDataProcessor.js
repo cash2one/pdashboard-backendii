@@ -20,31 +20,23 @@ module.exports = new Processor({
         var path = evt.path;
         var info = {};
         var jobname = path.split('/').slice(-4)[0];
-        // if (/fengchao_feview_uv_jsonlog_adpreview_json/.test(jobname)
-        // ) {
-        //     info.timestamp = evt.timestamp;
-        //     if (evt.period === 'hourly') {
-        //         this.hourlyLogs.push(info);
-        //     }
-        //     else {
-        //         this.logs.push(info);
-        //     }
-        // }
 
-        if (jobname === 'fcapi_preview_brief_hourly') {
+        if (jobname.indexOf('fcapi_preview_brief') > -1) {
+            var isHourly = jobname.indexOf('_hourly') > 0;
 
-        }
-
-        if (jobname === 'fcapi_preview_brief') {
             var dataAry = line.split('\t');
             var attrAry = ['device', 'seoFlag', 'pv', 'uv', 'tokenCount', 'succCount', 'succRate'];
+
+            if (isHourly) {
+                attrAry = ['hour'].concat(attrAry);
+            }
 
             for (var i = 0, len = dataAry.length; i < len; i++) {
                 info[attrAry[i]] = dataAry[i];
             }
             info.timestamp = evt.timestamp;
 
-            this.logs.push(info);
+            this[isHourly ? 'hourlyLogs' : 'logs'].push(info);
         }
 
         this.emit('line', {
@@ -61,26 +53,45 @@ module.exports = new Processor({
         var context = me.getContext();
         var db = context.db;
         var pendingJobs = [];
-        var record = {};
 
-        if (this.logs.length) {
-            _.each(this.logs, function (item, i) {
+        var parseLog = function (logAry) {
+            var record = {};
+            _.each(logAry, function (item, i) {
                 var attrName = item.device.toLowerCase() + '_' + item.seoFlag;
                 record.recordTimestamp = item.timestamp;
                 delete item.timestamp;
                 record[attrName] = item;
             });
 
+            return record;
+        };
+
+        if (this.logs.length) {
             pendingJobs.push(
-                this.updateLogs(db, 'fcapi_preview_brief', [record])
+                this.updateLogs(db, 'fcapi_preview_brief', [parseLog(this.logs)])
             );
         }
 
-        // if (this.hourlyLogs.length) {
-        //     pendingJobs.push(
-        //         this.updateLogs(db, 'adpreview_frontend_response_uv_hourly', cover2document(this.hourlyLogs))
-        //     );
-        // }
+        if (this.hourlyLogs.length) {
+            var logData = _.groupBy(this.hourlyLogs, 'hour');
+            var docs = [];
+
+            _.each(logData, function (item, key) {
+                var doc = parseLog(item);
+                var td = new Date();
+                td.setTime(Number(doc.recordTimestamp));
+                td.setHours(Number(key));
+                td.setMinutes(0);
+                doc.recordTimestamp = td.getTime();
+
+                docs.push(doc);
+            });
+
+            pendingJobs.push(
+                this.updateLogs(db, 'fcapi_preview_brief_hourly', docs)
+            );
+        }
+
         Promise.all(pendingJobs).then(
             function (results) {
                 console.info('[info]', 'adpreviewFcApiDataProcessor done');

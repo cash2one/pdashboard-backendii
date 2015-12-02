@@ -21,18 +21,14 @@ module.exports = new Processor({
         var info = {};
         var jobname = path.split('/').slice(-4)[0];
 
-        if (jobname === 'preview_ban_count') {
+        if (jobname.indexOf('preview_ban_count') > -1) {
             var lineDataAry = line.split('\t');
 
             info.reason = lineDataAry[0];
             info.count = lineDataAry[1];
             info.timestamp = evt.timestamp;
 
-            this.logs.push(info);
-        }
-
-        if (jobname === 'preview_ban_count_hourly') {
-
+            this[jobname.indexOf('_hourly') > 0 ? 'hourlyLogs' : 'logs'].push(info);
         }
 
         this.emit('line', {
@@ -49,28 +45,32 @@ module.exports = new Processor({
         var context = me.getContext();
         var db = context.db;
         var pendingJobs = [];
-        var record;
 
-        if (this.logs.length) {
+        var parseLog = function (logAry) {
             var BAN_REASON = {quota: '8501', frequency: '8904'};
-            record = {bannedForQuota: 0, bannedForFreq: 0};
+            var record = {bannedForQuota: 0, bannedForFreq: 0};
 
-            _.each(this.logs, function (info) {
+            _.each(logAry, function (info) {
                 var isQuota = info.reason === BAN_REASON.quota;
                 record[isQuota ? 'bannedForQuota' : 'bannedForFreq'] = info.count;
                 record.recordTimestamp = info.timestamp;
             });
 
+            return record;
+        };
+
+        if (this.logs.length) {
             pendingJobs.push(
-                this.updateLogs(db, 'preview_ban_count', [record])
+                this.updateLogs(db, 'preview_ban_count', [parseLog(this.logs)])
             );
         }
 
-        // if (this.hourlyLogs.length) {
-        //     pendingJobs.push(
-        //         this.updateLogs(db, 'adpreview_frontend_response_uv_hourly', cover2document(this.hourlyLogs))
-        //     );
-        // }
+        if (this.hourlyLogs.length) {
+            pendingJobs.push(
+                this.updateLogs(db, 'preview_ban_count_hourly', [parseLog(this.hourlyLogs)])
+            );
+        }
+
         Promise.all(pendingJobs).then(
             function (results) {
                 console.info('[info]', 'adpreviewBannedDataProcessor done');
