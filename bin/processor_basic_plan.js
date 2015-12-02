@@ -36,7 +36,26 @@ exports.basicPlanIndex = function (opts, db) {
             },
             handler: function (evt) {
                 var line = evt.data;
-                var info = JSON.parse(line);
+                var info = {};
+
+                if (opts.jobname === 'fengchao_fcapi_preview_brief') { 
+                    var dataAry = line.split('\t');
+                    var attrAry = ['device', 'seoFlag', 'pv', 'uv', 'tokenCount', 'succCount', 'succRate'];
+
+                    for (var i = 0, len = dataAry.length; i < len; i++) {
+                        info[attrAry[i]] = dataAry[i];
+                    }
+                }
+                else if (opts.jobname === 'fengchao_fcapi_preview_ban_count') {
+                    var lineDataAry = line.split('\t');
+
+                    info.reason = lineDataAry[0];
+                    info.count = lineDataAry[1];
+                }
+                else {
+                    info = JSON.parse(line);
+                }
+
                 this.logs.push(info);
                 this.emit('line', {data: line});
             },
@@ -47,7 +66,42 @@ exports.basicPlanIndex = function (opts, db) {
                 });
                 var docs = [];
                 var adpreviewColl;
-                if (opts.jobname === 'fengchao_feview_pv_jsonlog_adpreview_json') {
+
+                if (opts.jobname === 'fengchao_fcapi_preview_ban_count') {
+                    var BAN_REASON = {quota: '8501', frequency: '8904' };
+                    var record = {recordTimestamp: recordTimestamp};
+
+                    _.each(this.logs, function (info) {
+                        var isQuota = info.reason === BAN_REASON.quota;
+                        record[isQuota ? 'bannedForQuota' : 'bannedForFreq'] = info.count;
+                    });
+                    docs = [record];
+
+                    adpreviewColl = db.collection('fengchao_fcapi_preview_ban_count');
+                    adpreviewColl.remove({recordTimestamp: recordTimestamp}, function (err, result) {
+                        adpreviewColl.insert(docs, function (err, result) {
+                            me.emit('end', {});
+                        });
+                    });
+                }
+                else if (opts.jobname === 'fengchao_fcapi_preview_brief') { 
+                    var logItem = {recordTimestamp: recordTimestamp };
+
+                    _.each(this.logs, function (item, i) {
+                        var attrName = item.device.toLowerCase() + '_' + item.seoFlag;
+                        logItem[attrName] = item;
+                        delete logItem[attrName].device;
+                    });
+                    docs = [logItem];
+
+                    adpreviewColl = db.collection('fengchao_fcapi_preview_brief');
+                    adpreviewColl.remove({recordTimestamp: recordTimestamp}, function (err, result) {
+                        adpreviewColl.insert(docs, function (err, result) {
+                            me.emit('end', {});
+                        });
+                    });
+                }
+                else if (opts.jobname === 'fengchao_feview_pv_jsonlog_adpreview_json') {
                     docs = _.map(this.logs, function (item) {
                         return _.extend({
                             recordTimestamp: recordTimestamp
