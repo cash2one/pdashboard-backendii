@@ -19,6 +19,11 @@ module.exports = new Processor({
         var context = me.getContext();
         var args = context.args;
         var config = context.config;
+
+        args = _.filter(args, function (arg) {
+            var opts = arg.opts;
+            return !/^fcapi_preview_brief|preview_ban_count/.test(opts.jobname);
+        });
         // console.log('[debug]', '[processor:logReader][start]', 'context:', context);
         // console.log('[debug]', '[processor:logReader][start]', 'args:', args);
         // console.log('[debug]', '[processor:logReader][start]', 'config:', config);
