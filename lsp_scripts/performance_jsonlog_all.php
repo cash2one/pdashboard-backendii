@@ -276,30 +276,47 @@ $eventsSessions = $jsonLogs
 
 function filterNirvanaIILogs($logObject) {
     // 过滤target
-    if (!in_array($logObject['target']))
-    $v = $logObject['pageInactived'];
+    if (!in_array($logObject['target'], array(
+        'performance_static',
+        'performance_materialList',
+        'performance_accountTree',
+        'performance_newAomanual'
+    ))) {
+        return false;
+    }
+    // 过滤path，A点保留/overview/index，其他只保留keyword和plan
+    if (!in_array($logObject['path'], array(
+        '/overview/index',
+        '/manage/plan',
+        '/manage/keyword'
+    ))) {
+        return false;
+    }
+    if ($logObject['path'] == '/overview/index' && $logObject['target'] != 'performance_static') {
+        return false;
+    }
+    // 过滤pageStabled，logVersion
+    if ($logObject['pageStabled'] == '1') {
+        return false;
+    }
+    if ($logObject['logVersion'] != '3.0') {
+        return false;
+    }
+    // 如果是A点，则通过filter，否则，需要查actionfwd，等于1则通过filter
+    if ($logObject['target'] == 'performance_static') {
+        return true;
+    }
+
+    if ($logObject['actionfwd'] == 1) {
+        return true;
+    }
+
+    return false;
 }
 
 // 2, 基础过滤
 $n2Filtered = $jsonLogs
-    ->filter(array(
-        // 过滤targets
-        array('target', 'in', array(
-            'performance_static' => 1,
-            'performance_materialList' => 1,
-            'performance_accountTree' => 1,
-            'performance_newAomanual' => 1
-        )),
-        // 过滤pageStabled
-        array('pageStabled', '!=', '1'),
-        // 过滤logVersion
-        array('logVersion', '==', '3.0'),
-        // 过滤iframeShowed
-        array('iframeShowed', '==', null),
-        // 过滤actionfwd，只找跳转过1次的
-        array('actionfwd', '==', 1)
-
-    ))
+    ->filter(filterNirvanaIILogs)
     ->filter(filterPageInactived)
     ->leftJoin($eventsSessions, 'logSessionId')
     ->filter(filterEventsBeforeDumped)
@@ -393,14 +410,14 @@ $nFiltered = $jsonLogs
 $nStat = doStat($nFiltered);
 
 $nStat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvana_daily",
+    "fengchao_feview_performance_jsonlog_nirvana_daily_2",
     "凤巢前端性能_nirvana_天",
     null,
     true
 );
 
 $nStat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvana_json_daily",
+    "fengchao_feview_performance_jsonlog_nirvana_json_daily_2",
     "凤巢前端性能_nirvana_json_天",
     'toJsonOutput',
     true
