@@ -29,11 +29,12 @@ module.exports = new Processor({
     handler: function (evt) {
         var line = evt.data;
         var path = evt.path;
-        var info = JSON.parse(line);
         var jobname = path.split('/').slice(-4)[0];
+        var info = {};
         // console.log('[debug]', '[processor:adpreviewUVDataProcessor][line-handler]', 'jobname:', jobname);
         if (/fengchao_feview_uv_jsonlog_adpreview_json/.test(jobname)
         ) {
+            info = JSON.parse(line);
             info.timestamp = evt.timestamp;
             if (evt.period === 'hourly') {
                 this.hourlyLogs.push(info);
