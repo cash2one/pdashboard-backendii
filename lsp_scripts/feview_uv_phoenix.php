@@ -34,23 +34,10 @@ function extractLogData($object) {
 
 $nirvanaPageLoadLogs = DQuery::input()
     ->select(extractLogData)
-    ->filter(array('target', '==', 'nirvana_authentication_passed'));
+    ->filter(array('target', '==', 'phoenix_authentication_passed'));
 
-$nirvanaPageLoadPv = $nirvanaPageLoadLogs
-    ->count('*', 'pageLoadPv')
-    ->select(array('pageLoadPv'));
+$nirvanaPageLoadUv = $nirvanaPageLoadLogs
+    ->uniqCount('userid', 'count')
+    ->select(array('count'));
 
-$nirvanaPageLoadPv->outputAsNumeric('fengchao_feview_pv_jsonlog_nirvana', '凤巢前端PV(Nirvana)');
-
-// 按path分析pv分布
-$nirvanaPageLoadLogs
-    ->group('path')
-    ->countEach('*', 'count')
-    ->select(array('path', 'count'))
-    ->outputAsFile(
-        'fengchao_feview_pv_jsonlog_nirvana_by_path',
-        '凤巢前端PV按Path分组',
-        null,
-        true
-    );
-
+$nirvanaPageLoadUv->outputAsNumeric('fengchao_feview_uv_jsonlog_phoenix', '凤巢前端uv(Phoenix)');

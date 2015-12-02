@@ -79,8 +79,6 @@ function selectItems($logObject) {
         'performance_static_*',
         'performance_manage_*',
         'performance_manage_account_tree_*',
-        // table repaint
-        'performance_materialList_table_repaint_*',
         // 新AO timeline 相关
         'performance_manage_new_aomanual_*',
         // 新AO相关
@@ -125,7 +123,7 @@ function selectItems($logObject) {
 }
 
 /**
- * 统计processor，上游送来group过的，按topK排序过的性能指标。在这里计算分位值和pv。
+ * 统计processor，上游送来group过的，按topK排序过的性能指标，最慢的K个，从慢到快排序
  */
 class StatProcessor implements \IUserProcessor {
     private $values;
@@ -240,15 +238,18 @@ function doStat($DQ) {
         array('value', '<=', 100000),
         array('value', '>', 0)
     ));
-    // 原始log求topK，K定为 (300, 000)，这样可以算出最大(6, 000, 000)(600w)
+    // 原始log求topK，K定为 (100, 000)，这样可以算出最大(2, 000, 000)(200w)
     // 个pv的95分位值
     // 然后混上average
     return $filtered
         ->group($groupCond)
-        ->topEach('value', 300000)
+        ->topEach('value', 100000)
         ->leftJoin($averaged, $groupCond)
         ->group($groupCond)
-        ->processEach(StatProcessor)
+        ->each(
+            DQuery::sort('value', 'desc')
+                ->process(StatProcessor)
+        )
         ->select(array(
             'item', 'target', 'path', 'pv', 'average', 't50', 't80', 't95', 'gte100'
         ))->sort($groupCond);
@@ -273,28 +274,49 @@ $eventsSessions = $jsonLogs
     ))
     ->select(array('logSessionId', '__hasEvents' => true));
 
+function filterNirvanaIILogs($logObject) {
+    // 过滤target
+    if (!in_array($logObject['target'], array(
+        'performance_static',
+        'performance_materialList',
+        'performance_accountTree',
+        'performance_newAomanual'
+    ))) {
+        return false;
+    }
+    // 过滤path，A点保留/overview/index，其他只保留keyword和plan
+    if (!in_array($logObject['path'], array(
+        '/overview/index',
+        '/manage/plan',
+        '/manage/keyword'
+    ))) {
+        return false;
+    }
+    if ($logObject['path'] == '/overview/index' && $logObject['target'] != 'performance_static') {
+        return false;
+    }
+    // 过滤pageStabled，logVersion
+    if ($logObject['pageStabled'] == '1') {
+        return false;
+    }
+    if ($logObject['logVersion'] != '3.0') {
+        return false;
+    }
+    // 如果是A点，则通过filter，否则，需要查actionfwd，等于1则通过filter
+    if ($logObject['target'] == 'performance_static') {
+        return true;
+    }
+
+    if ($logObject['actionfwd'] == 1) {
+        return true;
+    }
+
+    return false;
+}
+
 // 2, 基础过滤
 $n2Filtered = $jsonLogs
-    ->filter(array(
-        // 过滤targets
-        array('target', 'in', array(
-            'performance_static' => 1,
-            'performance_materialList' => 1,
-            'performance_accountTree' => 1,
-            'performance_newAomanual' => 1,
-            'performance_materialList_table_repaint' => 1,
-            'timeline' => 1
-        )),
-        // 过滤pageStabled
-        array('pageStabled', '!=', '1'),
-        // 过滤logVersion
-        array('logVersion', '==', '3.0'),
-        // 过滤iframeShowed
-        array('iframeShowed', '==', null),
-        // 过滤actionfwd，只找跳转过1次的
-        array('actionfwd', '==', 1)
-
-    ))
+    ->filter(filterNirvanaIILogs)
     ->filter(filterPageInactived)
     ->leftJoin($eventsSessions, 'logSessionId')
     ->filter(filterEventsBeforeDumped)
@@ -358,10 +380,6 @@ $nFiltered = $jsonLogs
     ->filter(array(
         // 过滤targets
         array('target', 'in', array(
-            'performance_static' => 1,
-            'performance_materialList' => 1,
-            'performance_accountTree' => 1,
-            'performance_ao_manual' => 1,
             'performance_emanage_action_enter' => 1,
             'performance_emanage_action_render' => 1,
             'performance_emanage_action_rendered' => 1,
@@ -392,14 +410,14 @@ $nFiltered = $jsonLogs
 $nStat = doStat($nFiltered);
 
 $nStat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvana_daily",
+    "fengchao_feview_performance_jsonlog_nirvana_daily_2",
     "凤巢前端性能_nirvana_天",
     null,
     true
 );
 
 $nStat->outputAsFile(
-    "fengchao_feview_performance_jsonlog_nirvana_json_daily",
+    "fengchao_feview_performance_jsonlog_nirvana_json_daily_2",
     "凤巢前端性能_nirvana_json_天",
     'toJsonOutput',
     true
