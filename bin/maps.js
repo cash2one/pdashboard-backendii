@@ -38,7 +38,7 @@ module.exports = {
 
     // 推广实况相关log任务处理
     adpreview: {
-        adprviewLogReader: {
+        adpreviewLogReader: {
             up: [],
             down: [
                 'adpreviewPVDataProcessor',
@@ -48,19 +48,19 @@ module.exports = {
             ]
         },
         adpreviewPVDataProcessor: {
-            up: ['adprviewLogReader'],
+            up: ['adpreviewLogReader'],
             down: []
         },
         adpreviewUVDataProcessor: {
-            up: ['adprviewLogReader'],
+            up: ['adpreviewLogReader'],
             down: []
         },
         adpreviewFcApiDataProcessor: {
-            up: ['adprviewLogReader'],
+            up: ['adpreviewLogReader'],
             down: []
         },
         adpreviewBannedDataProcessor: {
-            up: ['adprviewLogReader'],
+            up: ['adpreviewLogReader'],
             down: []
         }
     }
