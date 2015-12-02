@@ -31,7 +31,7 @@ module.exports = new Processor({
         //     }
         // }
 
-        if (jobname === 'fcapi_preview_brief_hour') {
+        if (jobname === 'fcapi_preview_brief_hourly') {
 
         }
 
@@ -72,7 +72,7 @@ module.exports = new Processor({
             });
 
             pendingJobs.push(
-                this.updateLogs(db, 'fcapi_preview_brief_daily', [record])
+                this.updateLogs(db, 'fcapi_preview_brief', [record])
             );
         }
 

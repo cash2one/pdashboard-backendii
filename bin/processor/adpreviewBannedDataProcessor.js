@@ -31,7 +31,7 @@ module.exports = new Processor({
             this.logs.push(info);
         }
 
-        if (jobname === 'preview_ban_count_hour') {
+        if (jobname === 'preview_ban_count_hourly') {
 
         }
 
@@ -62,7 +62,7 @@ module.exports = new Processor({
             });
 
             pendingJobs.push(
-                this.updateLogs(db, 'preview_ban_count_daily', [record])
+                this.updateLogs(db, 'preview_ban_count', [record])
             );
         }
 
