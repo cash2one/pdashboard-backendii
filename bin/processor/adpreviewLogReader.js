@@ -19,10 +19,17 @@ module.exports = new Processor({
         var context = me.getContext();
         var args = context.args;
         var config = context.config;
+        var jobnames = [
+            'fengchao_feview_pv_jsonlog_adpreview_json',
+            'fengchao_feview_uv_jsonlog_adpreview_json',
+            'fcapi_preview_brief',
+            'preview_ban_count'
+        ].join('|');
 
+        var reg = new RegExp('^' + jobnames);
         args = _.filter(args, function (arg) {
             var opts = arg.opts;
-            return /^fcapi_preview_brief|preview_ban_count/.test(opts.jobname);
+            return !!reg.test(opts.jobname);
         });
         // console.log('[debug]', '[processor:logReader][start]', 'context:', context);
         // console.log('[debug]', '[processor:logReader][start]', 'args:', args);
