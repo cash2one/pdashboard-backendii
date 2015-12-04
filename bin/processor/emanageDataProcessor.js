@@ -49,7 +49,7 @@ module.exports = new Processor({
         //     'output changed:', timestampOfLogOutputChanged,
         //     'smaller:', evt.timestamp < timestampOfLogOutputChanged);
         if (/^\/overview\/index$/.test(info.path)
-            && ((evt.timestamp < timestampOfLogOutputChanged
+            && ((evt.timestamp <= timestampOfLogOutputChanged
                     && /performance_jsonlog_nirvana_/.test(jobname)
                     && (/^performance_emanage/.test(info.target)
                         || /^performance_static$/.test(info.item))
