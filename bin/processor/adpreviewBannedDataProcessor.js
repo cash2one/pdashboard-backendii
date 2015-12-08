@@ -47,7 +47,7 @@ module.exports = new Processor({
         var pendingJobs = [];
 
         var parseLog = function (logAry) {
-            var BAN_REASON = {quota: '8501', frequency: '8904'};
+            var BAN_REASON = {quota: '8802', frequency: '8904'};
             var record = {bannedForQuota: 0, bannedForFreq: 0};
 
             _.each(logAry, function (info) {
