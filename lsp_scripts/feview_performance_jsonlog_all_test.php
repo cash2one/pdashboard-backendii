@@ -76,11 +76,11 @@ function selectItems($logObject) {
         'performance_accountTree',
         'performance_ao_manual',
         // timeline
-        'performance_static_*',
-        'performance_manage_*',
-        'performance_manage_account_tree_*',
+        // 'performance_static_*',
+        // 'performance_manage_*',
+        // 'performance_manage_account_tree_*',
         // 新AO timeline 相关
-        'performance_manage_new_aomanual_*',
+        // 'performance_manage_new_aomanual_*',
         // 新AO相关
         'performance_newAomanual',
         'performance_newAomanual_*'
@@ -120,6 +120,96 @@ function selectItems($logObject) {
     }
 
     return $resultSet;
+}
+
+function getTimelineMetrics($offset, $len) {
+    $timelineMetrics = array(
+        'performance_static_html_parse',
+        'performance_static_css_loaded',
+        'loading-global-start',
+        'performance_static_js_sync_loaded',
+        'performance_static_basicInfo_prefetch_sent',
+        'performance_static_js_async_loaded',
+        'performance_static_require_fc',
+        'performance_static_attach_skin',
+        'performance_static_reset_map',
+        'performance_static_config_er',
+        'performance_static_trigger_logo',
+        'performance_static_register_action',
+        'performance_static_basicInfo_start',
+        'performance_static_basicInfo_finish',
+        'performance_static_basicInfo_process',
+        'performance_static_er_start',
+        'performance_static_er_inited',
+        'performance_monitor_config_start',
+        'performance_monitor_config_finish',
+        'performance_manage_actionloaded',
+        'performance_manage_enteraction',
+        'performance_manage_enter',
+        'performance_manage_beforemodelload',
+        'performance_manage_load_navinfo',
+        'performance_manage_load_materiallist',
+        'performance_manage_load_materialsum',
+        'performance_manage_load_materiallistbyexpath',
+        'performance_manage_load_summary',
+        'performance_manage_load_materialsum',
+        'performance_manage_load_coupons',
+        'performance_manage_load_winfofolders',
+        'performance_manage_load_xiconinfoloaded',
+        'performance_manage_load_matchfactor',
+        'performance_manage_load_level',
+        'performance_manage_load_couponinfo',
+        'performance_manage_load_labstat',
+        'performance_manage_load_optsug',
+        'performance_manage_load_bidsimulatorinfo',
+        'performance_manage_load_xloaderfinished',
+        'performance_manage_load_bulletin',
+        'performance_manage_load_account_tree',
+        'performance_manage_account_tree_start',
+        'performance_manage_account_tree_inited',
+        'performance_manage_account_tree_rendered',
+        'performance_manage_account_tree_data_loaded',
+        'performance_manage_account_tree_init_behavior',
+        'performance_manage_account_tree_displayed',
+        'performance_manage_ao_manual_start',
+        'performance_manage_ao_manual_nirvana_base_loaded',
+        'performance_manage_ao_manual_ui_inited',
+        'performance_manage_ao_manual_js_async_loaded',
+        'performance_manage_ao_manual_control_started',
+        'performance_manage_ao_manual_responserender_0',
+        'performance_manage_ao_manual_responserender_1',
+        'performance_manage_ao_manual_responserender_2',
+        'performance_manage_ao_manual_responserender_3',
+        'performance_manage_ao_manual_requeststart_0',
+        'performance_manage_ao_manual_requeststart_1',
+        'performance_manage_ao_manual_requeststart_2',
+        'performance_manage_ao_manual_requeststart_3',
+        'performance_manage_ao_manual_finished',
+        'performance_manage_modelloaded',
+        'performance_manage_beforerender',
+        'performance_manage_rendered',
+        'performance_manage_initbehavior',
+        'performance_manage_custombehavior',
+        'performance_manage_entercomplete',
+        'performance_manage_enteractioncomplete',
+        'performance_manage_enteractionfail',
+        // ao新手动版摘要轮询埋点
+        'performance_manage_new_aomanual_start',
+        'performance_manage_new_aomanual_query_begin0',
+        'performance_manage_new_aomanual_query_end0',
+        'performance_manage_new_aomanual_polling1',
+        'performance_manage_new_aomanual_query_begin1',
+        'performance_manage_new_aomanual_query_end1',
+        'performance_manage_new_aomanual_polling2',
+        'performance_manage_new_aomanual_query_begin2',
+        'performance_manage_new_aomanual_query_end2',
+        'performance_manage_new_aomanual_query_end1',
+        'performance_manage_new_aomanual_polling3',
+        'performance_manage_new_aomanual_query_begin3',
+        'performance_manage_new_aomanual_query_end3',
+        'performance_manage_new_aomanual_finish'
+    );
+    return array_slice($timelineMetrics, $offset, $len);
 }
 
 /**
@@ -277,7 +367,10 @@ $eventsSessions = $jsonLogs
 function filterNirvanaIILogs($logObject) {
     // 过滤target
     if (!in_array($logObject['target'], array(
-        'timeline'
+        'performance_static',
+        'performance_materialList',
+        'performance_accountTree',
+        'performance_newAomanual'
     ))) {
         return false;
     }
@@ -300,6 +393,22 @@ function filterNirvanaIILogs($logObject) {
     return false;
 }
 
+function filterNirvanaIITimelineLogs($logObject) {
+    if ($logObject['target'] != 'timeline') {
+        return false;
+    }
+    if ($logObject['pageStabled'] == '1') {
+        return false;
+    }
+    if ($logObject['logVersion'] != 3.0) {
+        return false;
+    }
+    if ($logObject['actionfwd'] == 1) {
+        return true;
+    }
+    return false;
+}
+
 // 2, 基础过滤
 $n2Filtered = $jsonLogs
     ->filter(filterNirvanaIILogs)
@@ -310,6 +419,103 @@ $n2Filtered = $jsonLogs
 
 // 3, 分target和path排序，并统计
 $n2Stat = doStat($n2Filtered);
+
+$n2timelineFiltered = $jsonLogs
+    ->filter(filterNirvanaIITimelineLogs)
+    ->filter(filterPageInactived)
+    ->leftJoin($eventsSessions, 'logSessionId')
+    ->filter(filterEventsBeforeDumped);
+
+function metricPicker($logObject, $items) {
+    $result = array();
+    foreach($items as $item) {
+        foreach($logObject as $k => $v) {
+            if (keyMatches($k, $item)) {
+                $result[] = array(
+                    'value' => $v,
+                    'item' => $k,
+                    'target' => $logObject['target'],
+                    'path' => $logObject['path']
+                );
+            }
+        }
+    }
+    return $result;
+}
+function metricSelector1($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(0, 5));
+}
+function metricSelector2($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(5, 5));
+}
+function metricSelector3($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(10, 5));
+}
+function metricSelector4($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(15, 5));
+}
+function metricSelector5($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(20, 5));
+}
+function metricSelector6($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(25, 5));
+}
+function metricSelector7($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(30, 5));
+}
+function metricSelector8($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(35, 5));
+}
+function metricSelector9($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(40, 5));
+}
+function metricSelector10($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(45, 5));
+}
+function metricSelector11($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(50, 5));
+}
+function metricSelector12($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(55, 5));
+}
+function metricSelector13($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(60, 5));
+}
+function metricSelector14($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(65, 5));
+}
+function metricSelector15($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(70, 5));
+}
+function metricSelector16($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(75, 5));
+}
+function metricSelector17($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(80, 5));
+}
+function metricSelector18($logObject) {
+    return metricPicker($logObject, getTimelineMetrics(85, 5));
+}
+
+$n2Stat = $n2Stat
+    ->union(doStat($n2timelineFiltered->select(metricSelector1)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector2)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector3)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector4)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector5)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector6)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector7)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector8)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector9)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector10)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector11)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector12)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector13)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector14)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector15)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector16)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector17)))
+    ->union(doStat($n2timelineFiltered->select(metricSelector18)));
 
 $n2Stat->outputAsFile(
     "fengchao_feview_performance_jsonlog_nirvanaII_test_daily",
