@@ -96,15 +96,20 @@ class StatRespProcessor implements \IUserProcessor {
     private $validCount;
     private $banCount;
     private $invalidUserCount;
+    private $serverExceptionCount;
+    private $timeoutCount;
+    private $noAdsCount;
     private $invalidRespCount;
-    private $noAdsResult;
 
     public function init() {
         $this->validCount = 0;
         $this->banCount = 0;
         $this->invalidUserCount = 0;
+        $this->noAdsCount = 0;
+        $this->serverExceptionCount = 0;
+        $this->timeoutCount = 0;
         $this->invalidRespCount = 0;
-        $this->noAdsResult = 0;
+
     }
 
     public function process($fields) {
@@ -115,12 +120,19 @@ class StatRespProcessor implements \IUserProcessor {
             case 'ban_preview_result':
                 $this->banCount = $fields['resultSum'];
                 break;
-            case 'no_ads_result':
-                $this->noAdsResult = $fields['resultSum'];
-                break;
-            case 'invalid_preview_user':
+            case 'invalid_preview_user_result':
                 $this->invalidUserCount = $fields['resultSum'];
                 break;
+            case 'no_ads_result':
+                $this->noAdsCount = $fields['resultSum'];
+                break;
+            case 'server_exception_result':
+                $this->serverExceptionCount = $fields['resultSum'];
+                break;
+            case 'timeout_result':
+                $this->timeoutCount = $fields['resultSum'];
+                break;
+            // 这个分类在12月10日上线之后将不再有
             case 'invalid_preview_result':
                 $this->invalidRespCount = $fields['resultSum'];
                 break;
@@ -133,10 +145,12 @@ class StatRespProcessor implements \IUserProcessor {
         return array(
             'target' => 'adpreview',
             'respValidCount' => $this->validCount,
-            'respNoAdsCount' => $this->noAdsResult,
             'respBanCount' => $this->banCount,
             'respInvalidUserCount' => $this->invalidUserCount,
-            'respInvalidRespCount' => $this->invalidRespCount
+            'respNoAdsCount' => $this->noAdsCount,
+            'respServerExceptionCount' => $this->serverExceptionCount,
+            'respInvalidRespCount' => $this->invalidRespCount,
+            'respTimeoutCount' => $this->timeoutCount
         );
     }
 }
@@ -297,7 +311,13 @@ function computeResult($reqDQ, $respDQ) {
         ->select(array(
             'reqTotalCount', 'reqPcCount', 'reqMobileCount',
             'reqOnlyTotal', 'reqOnlyPc', 'reqOnlyMobile',
-            'respValidCount', 'respNoAdsCount', 'respBanCount', 'respInvalidUserCount', 'respInvalidRespCount'
+            'respValidCount',
+            'respBanCount',
+            'respInvalidUserCount',
+            'respNoAdsCount',
+            'respServerExceptionCount',
+            'respInvalidRespCount',
+            'respTimeoutCount'
         ));
 }
 
@@ -338,11 +358,14 @@ $resultUv->outputAsFile(
  */
 function computeSuccRatio($fields) {
     return array(
-        'ratio' => $fields['reqTotalCount'] / (
+        'ratio' => $fields['respValidCount'] / (
             $fields['respValidCount']
             + $fields['respBanCount']
             + $fields['respInvalidUserCount']
+            + $fields['respNoAdsCount']
+            + $fields['respServerExceptionCount']
             + $fields['respInvalidRespCount']
+            + $fields['respTimeoutCount']
         )
     );
 }
