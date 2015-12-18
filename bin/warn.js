@@ -10,6 +10,10 @@ var fs = require('fs-extra');
 var etpl = require('etpl');
 var _ = require('underscore');
 var fixed2Data = require('../lib/common/util').fixed2Data;
+var connectDb = require('./db').connectDb;
+
+// 读取项目配置文件
+var config = JSON.parse(fs.readFileSync(process.env.HOME + '/.nightingale.conf', 'utf8'));
 
 var options = {
     'performance_plan_basic': [
@@ -443,4 +447,24 @@ exports.sendMail = function (message) {
             });
         });
     })
+}
+
+if (require.main === module) {
+    return connectDb(config['db-url']).then(function (db) {
+        return exports.run(db, './bin/mailTpl.tpl').then(
+            function (warns) {
+                console.info(warns);
+            },
+            function (ret) {
+                console.trace(ret, ret.stack);
+            }
+        ).then(
+            function () {
+                db.close();
+            },
+            function () {
+                db.close();
+            }
+        );
+    });
 }
