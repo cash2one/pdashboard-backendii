@@ -154,7 +154,7 @@ exports.run = function () {
                         console.info('[info]', 'mail code:', warns.code);
                     },
                     function (result) {
-                        console.error('[error]', 'mail alarmer launch failed');
+                        console.error('[error]', 'mail alarmer launch failed', result, result.stack);
                     }
                 );
             }

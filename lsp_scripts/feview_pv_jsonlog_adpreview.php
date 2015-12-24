@@ -10,6 +10,11 @@ function debugPrint($object) {
     return $object;
 }
 
+function myDebug($fields){
+    \Utils::trace($fields);
+    return $fields;
+}
+
 /**
  * decode JSON数据行，返回array，含有一条日志信息。
  */
@@ -157,7 +162,7 @@ class StatRespProcessor implements \IUserProcessor {
 
 $jsonLogs = DQuery::input()
     ->select(extractLogData);
-
+ 
 // 请求logs
 $reqLog = $jsonLogs
     ->filter(array('target', '==', 'searchAdPreview'))
@@ -205,7 +210,8 @@ $checkAllStateLogs = $jsonLogs
     ->filter(array(
         array('source', '==', 'nirvana_app_liveViewer'),
         array('target', '==', 'check_all_state')
-    ));
+    ))
+    ->uniq('reqid');
 
 $checkAllStateLogs
     ->group(array('result', 'userid'))
