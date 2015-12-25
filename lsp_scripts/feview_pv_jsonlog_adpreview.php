@@ -10,7 +10,10 @@ function debugPrint($object) {
     return $object;
 }
 
-function myDebug($fields){
+/**
+ * 调试信息输出
+ */
+function debugTrace($fields){
     \Utils::trace($fields);
     return $fields;
 }
@@ -206,54 +209,12 @@ $reqUvLog->outputAsFile(
     true
 );
 
-$checkAllStateLogs = $jsonLogs
-    ->filter(array(
-        array('source', '==', 'nirvana_app_liveViewer'),
-        array('target', '==', 'check_all_state')
-    ))
-    ->uniq('reqid');
-
-$checkAllStateLogs
-    ->group(array('result', 'userid'))
-    ->countEach('*', 'count')
-    ->sort('count', 'desc')
-    ->select(array('result', 'userid', 'optid', 'count'))
-    ->outputAsFile(
-        'fengchao_feview_sorted_uv_jsonlog_adpreview',
-        '凤巢前端实况UV_天_已排序',
-        null,
-        true
-    );
-
-$checkAllStateLogs
-    ->group(array('result', 'optid'))
-    ->countEach('*', 'count')
-    ->sort('count', 'desc')
-    ->select(array('result', 'optid', 'count'))
-    ->outputAsFile(
-        'fengchao_feview_sorted_optid_jsonlog_adpreview',
-        '凤巢前端实况_OPTID_天_已排序',
-        null,
-        true
-    );
-
-$checkAllStateLogs
-    ->group(array('result', 'optid', 'userid'))
-    ->countEach('*', 'count')
-    ->sort('count', 'desc')
-    ->select(array('result', 'userid', 'optid', 'count'))
-    ->outputAsFile(
-        'fengchao_feview_sorted_userid_optid_jsonlog_adpreview',
-        '凤巢前端实况_OPTID_USERID_天_已排序',
-        null,
-        true
-    );
-
 $respLog = $jsonLogs
     ->filter(array(
         array('source', '==', 'nirvana_app_liveViewer'),
         array('target', '==', 'check_all_state')
     ))
+    ->uniq('reqid')
     ->group(array('device', 'framekey', 'result'));
 
 $respPvLog = $respLog
