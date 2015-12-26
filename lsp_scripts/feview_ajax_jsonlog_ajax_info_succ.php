@@ -7,9 +7,9 @@ function debugPrint($object) {
 }
 
 /**
- * 计算95分位值的processor，上游送来top排序且有总count的数据
+ * 统计processor，上游送来group过的，按topK排序过的性能指标，最慢的K个，从慢到快排序
  */
-class T95Processor implements \IUserProcessor {
+class StatProcessor implements \IUserProcessor {
     private $values;
     private $count;
 
@@ -22,34 +22,43 @@ class T95Processor implements \IUserProcessor {
         if ($this->count == 0) {
             $this->count = $fields['count'];
         }
-        $this->values[] = $fields['spent'];
+        $this->values[] = $fields['spent'];    
     }
 
     public function fini() {
+        // 在只有topK的情况下尽可能的算出50、80、95分位值
+        
+        // 结果存放处
+        $res = array();
+        $res['pv'] = $this->count;
         $topKcount = count($this->values);
-        $t95 = -1;
-        // 局部排序后的values，topKcount要么等于总count，要么小于总count
         if ($topKcount == $this->count) {
-            // 等于总count的情况，t95是处于5%位置的值。
-            $t95 = $this->values[floor($topKcount * 0.05)];
+            // 等于总count的情况，values就是数据全集，求出50、80、95分位值
+            $res['t95'] = $this->values[floor($this->count * 0.05)];
+            $res['t80'] = $this->values[floor($this->count * 0.20)];
+            $res['t50'] = $this->values[floor($this->count * 0.50)];
         }
         else if ($topKcount < $this->count) {
-            // 小于总count的情况，算出总count的5%的量
+            // topK小于总count的情况，values是部分，尽量算
+            // 95分位值
             $pos = floor($this->count * 0.05);
             if ($pos <= $topKcount) {
-                // 所要的数目在部分排序的数字里
-                $t95 = $this->values[$pos];
+                $res['t95'] = $this->values[$pos];
             }
-            else {
-                // pv太大，topK也未能包含，记一个错误(-2)
-                $t95 = -2;
+            // 80分位值
+            $pos = floor($this->count * 0.20);
+            if ($pos <= $topKcount) {
+                $res['t80'] = $this->values[$pos];
+            }
+            // 50分位值
+            $pos = floor($this->count * 0.50);
+            if ($pos <= $topKcount) {
+                $res['t50'] = $this->values[$pos];
             }
         }
-        // else, topKcount大于总count，不可能出现，t95维持-1，表示另一种错误
+        // else, topKcount大于总count，不可能出现
 
-        return array(
-            't95' => $t95
-        );
+        return $res;
     }
 }
 
@@ -150,6 +159,14 @@ $ajaxLogs = DQuery::input()
     ->filter(array('target', '==', 'ajaxInfo'))
     ->select(extractAjaxSuccData);
 
+// 原始ajax按path分组，算 average, gte100
+$avgAjaxLogs = $ajaxLogs
+    ->group(array('path', 'ajaxPath'))
+    ->each(
+        DQuery::process(AverageProcessor)
+    )
+    ->select(array('path', 'ajaxPath', 'count', 'average', 'gte100'));
+
 // 过滤负数和大于100000ms的ajax
 $filteredAjaxLogs = $ajaxLogs
     ->filter(array(
@@ -157,14 +174,6 @@ $filteredAjaxLogs = $ajaxLogs
         array('spent', '>', 0)
     ));
 
-// 原始ajax按path分组，算 average, gte100
-$byPath = $ajaxLogs
-    ->group(array('path', 'ajaxPath'));
-$avgAjaxLogs = $byPath
-    ->each(
-        DQuery::process(AverageProcessor)
-    )
-    ->select(array('path', 'ajaxPath', 'count', 'average', 'gte100'));
 
 // filtered ajax算topK
 // K定为 (300, 000)，这样可以算出最大(6, 000, 000)(600w)个pv的95分位值
@@ -176,8 +185,13 @@ $topK = $filteredAjaxLogs
 
 $stat = $topK
     ->group(array('path', 'ajaxPath'))
-    ->processEach(T95Processor)
-    ->select(array('path', 'ajaxPath', 'count', 'average', 't95', 'gte100'))
+    ->each(
+        DQuery::sort('spent', 'desc')
+            ->process(StatProcessor)
+    )
+    ->select(array(
+        'path', 'ajaxPath', 'count', 'average', 't50', 't80', 't95', 'gte100'
+    ))
     ->sort(array('path', 'ajaxPath', 'count'));
 
 $stat->outputAsFile(
