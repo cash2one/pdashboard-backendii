@@ -224,9 +224,27 @@ $reqUvLog->outputAsFile(
 $respLog = $jsonLogs
     ->filter(array(
         array('source', '==', 'nirvana_app_liveViewer'),
-        array('target', '==', 'check_all_state')
+        array('target', '==', 'check_all_state'),
+        array('result', '!=', 'frame_load'),
+        array('result', '!=', 'frame_loaded')
     ))
     ->uniq('reqid')
+    ->union(
+        $jsonLogs->filter(array(
+            array('source', '==', 'nirvana_app_liveViewer'),
+            array('target', '==', 'check_all_state'),
+            array('result', '==', 'frame_load')
+        ))
+        ->uniq('reqid')
+    )
+    ->union(
+        $jsonLogs->filter(array(
+            array('source', '==', 'nirvana_app_liveViewer'),
+            array('target', '==', 'check_all_state'),
+            array('result', '==', 'frame_loaded')
+        ))
+        ->uniq('reqid')
+    )
     ->group(array('device', 'framekey', 'result'));
 
 $respPvLog = $respLog
