@@ -47,13 +47,24 @@ module.exports = new Processor({
         var pendingJobs = [];
 
         var parseLog = function (logAry) {
-            var BAN_REASON = {quota: '8802', frequency: '8904'};
-            var record = {bannedForQuota: 0, bannedForFreq: 0};
+            var BAN_REASON_CODE = {
+                "8802": 'bannedForQuota',
+                "8904": 'bannedForFreq',
+                "9011022": 'bannedForQPS'
+            };
+
+            var record = {
+                bannedForQuota: 0, 
+                bannedForFreq: 0,
+                bannedForQPS: 0
+            };
 
             _.each(logAry, function (info) {
-                var isQuota = info.reason === BAN_REASON.quota;
-                record[isQuota ? 'bannedForQuota' : 'bannedForFreq'] = info.count;
-                record.recordTimestamp = info.timestamp;
+                var field = BAN_REASON_CODE[info.reason];
+                if (field) {
+                    record[field] = info.count;
+                    record.recordTimestamp = info.timestamp;
+                }
             });
 
             return record;
