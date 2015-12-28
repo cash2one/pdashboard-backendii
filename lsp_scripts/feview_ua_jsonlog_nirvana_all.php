@@ -198,13 +198,22 @@ function extractLogData($object) {
     return $result;
 }
 
-$nirvanaPageLoadLogs = DQuery::input()
+function parseUa($logObject) {
+    debugPrint($logObject);
+    debugPrint("\n");
+    debugPrint(parse_user_agent($logObject['ua']));
+}
+
+$uaLogs = DQuery::input()
     ->select(extractLogData)
-    ->filter(array('target', '==', 'NIRVANA_PAGE_LOAD'));
+    ->filter(array('target', '==', 'nirvana_authentication_passed'))
+    ->select(array('ua'))
+    ->select(parseUa);
 
-$nirvanaPageLoadPv = $nirvanaPageLoadLogs
-    ->count('*', 'pageLoadPv')
-    ->select(array('pageLoadPv'));
-
-$nirvanaPageLoadPv->outputAsNumeric('fengchao_feview_pv_jsonlog_nirvana', '凤巢前端PV(Nirvana)');
+$uaLogs->outputAsFile(
+    'fengchao_feview_uv_jsonlog_nirvana',
+    '凤巢前端UA分布',
+    null,
+    true
+);
 

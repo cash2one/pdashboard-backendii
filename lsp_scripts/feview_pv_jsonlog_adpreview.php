@@ -108,6 +108,8 @@ class StatRespProcessor implements \IUserProcessor {
     private $timeoutCount;
     private $noAdsCount;
     private $invalidRespCount;
+    private $frameLoad;
+    private $frameLoaded;
 
     public function init() {
         $this->validCount = 0;
@@ -117,7 +119,8 @@ class StatRespProcessor implements \IUserProcessor {
         $this->serverExceptionCount = 0;
         $this->timeoutCount = 0;
         $this->invalidRespCount = 0;
-
+        $this->frameLoad = 0;
+        $this->frameLoaded = 0;
     }
 
     public function process($fields) {
@@ -144,6 +147,13 @@ class StatRespProcessor implements \IUserProcessor {
             case 'invalid_preview_result':
                 $this->invalidRespCount = $fields['resultSum'];
                 break;
+            // 2015.12月24日新上线
+            case 'frame_load':
+                $this->frameLoad = $fields['resultSum'];
+                break;
+            case 'frame_loaded':
+                $this->frameLoaded = $fields['resultSum'];
+                break;            
             default:
                 break;
         }
@@ -158,7 +168,9 @@ class StatRespProcessor implements \IUserProcessor {
             'respNoAdsCount' => $this->noAdsCount,
             'respServerExceptionCount' => $this->serverExceptionCount,
             'respInvalidRespCount' => $this->invalidRespCount,
-            'respTimeoutCount' => $this->timeoutCount
+            'respTimeoutCount' => $this->timeoutCount,
+            'respFrameLoad' => $this->frameLoad,
+            'respFrameLoaded' => $this->frameLoaded
         );
     }
 }
@@ -212,9 +224,27 @@ $reqUvLog->outputAsFile(
 $respLog = $jsonLogs
     ->filter(array(
         array('source', '==', 'nirvana_app_liveViewer'),
-        array('target', '==', 'check_all_state')
+        array('target', '==', 'check_all_state'),
+        array('result', '!=', 'frame_load'),
+        array('result', '!=', 'frame_loaded')
     ))
     ->uniq('reqid')
+    ->union(
+        $jsonLogs->filter(array(
+            array('source', '==', 'nirvana_app_liveViewer'),
+            array('target', '==', 'check_all_state'),
+            array('result', '==', 'frame_load')
+        ))
+        ->uniq('reqid')
+    )
+    ->union(
+        $jsonLogs->filter(array(
+            array('source', '==', 'nirvana_app_liveViewer'),
+            array('target', '==', 'check_all_state'),
+            array('result', '==', 'frame_loaded')
+        ))
+        ->uniq('reqid')
+    )
     ->group(array('device', 'framekey', 'result'));
 
 $respPvLog = $respLog
@@ -284,7 +314,9 @@ function computeResult($reqDQ, $respDQ) {
             'respNoAdsCount',
             'respServerExceptionCount',
             'respInvalidRespCount',
-            'respTimeoutCount'
+            'respTimeoutCount',
+            'respFrameLoad',
+            'respFrameLoaded'
         ));
 }
 

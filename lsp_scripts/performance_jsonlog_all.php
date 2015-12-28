@@ -78,9 +78,6 @@ function selectItems($logObject) {
         // timeline
         'performance_static_*',
         'performance_manage_*',
-        'performance_manage_account_tree_*',
-        // 新AO timeline 相关
-        'performance_manage_new_aomanual_*',
         // 新AO相关
         'performance_newAomanual',
         'performance_newAomanual_*'
@@ -238,12 +235,12 @@ function doStat($DQ) {
         array('value', '<=', 100000),
         array('value', '>', 0)
     ));
-    // 原始log求topK，K定为 (100, 000)，这样可以算出最大(2, 000, 000)(200w)
+    // 原始log求topK，K定为 (300, 000)，这样可以算出最大(6, 000, 000)(200w)
     // 个pv的95分位值
     // 然后混上average
     return $filtered
         ->group($groupCond)
-        ->topEach('value', 100000)
+        ->topEach('value', 300000)
         ->leftJoin($averaged, $groupCond)
         ->group($groupCond)
         ->each(
@@ -280,25 +277,16 @@ function filterNirvanaIILogs($logObject) {
         'performance_static',
         'performance_materialList',
         'performance_accountTree',
-        'performance_newAomanual'
+        'performance_newAomanual',
+        'timeline'
     ))) {
-        return false;
-    }
-    // 过滤path，A点保留/overview/index，其他只保留keyword和plan
-    if (!in_array($logObject['path'], array(
-        '/overview/index',
-        '/manage/plan',
-        '/manage/keyword'
-    ))) {
-        return false;
-    }
-    if ($logObject['path'] == '/overview/index' && $logObject['target'] != 'performance_static') {
         return false;
     }
     // 过滤pageStabled，logVersion
     if ($logObject['pageStabled'] == '1') {
         return false;
     }
+
     if ($logObject['logVersion'] != '3.0') {
         return false;
     }
@@ -344,35 +332,11 @@ $n2Stat->outputAsFile(
  */
 
 /**
- * 过滤isBlankOpened: true
- */
-function filterIsBlankOpened($logObject) {
-    return is_null($logObject['isBlankOpened'])
-        || $logObject['isBlankOpened'] == '';
-}
-
-/**
- * 过滤performance_static: -1
- */
-function filterPerformanceStaticNeg($logObject) {
-    return is_null($logObject['performance_static'])
-        || $logObject['performance_static'] != -1;
-}
-
-/**
  * 若是便捷管理页，过滤'看排名'
  */
 function filterCorewords($logObject) {
     return is_null($logObject['firstSelPkgId']) ||
         $logObject['firstSelPkgId'] == 4;
-}
-
-/**
- * 过滤isLoadingDumpped
- */
-function filterIsLoadingDumpped($logObject) {
-    return is_null($logObject['isLoadingDumpped']) ||
-        $logObject['isLoadingDumpped'] == '';
 }
 
 // 1, 基础过滤
@@ -397,13 +361,11 @@ $nFiltered = $jsonLogs
         )),
         // 过滤logVersion
         array('logVersion', '!=', '3.0'),
-        array('logVersion', '!=', '2.5')
+        array('logVersion', '!=', '2.5'),
+        array('actionfwd', '==', 1)
     ))
-    ->filter(filterPerformanceStaticNeg)
-    ->filter(filterIsBlankOpened)
-    ->filter(filterPageInactived)
     ->filter(filterCorewords)
-    ->filter(filterIsLoadingDumpped)
+    ->filter(filterPageInactived)
     ->select(selectItems);
 
 // 2, 分target和path排序，并统计
