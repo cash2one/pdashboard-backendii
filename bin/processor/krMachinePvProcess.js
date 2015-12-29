@@ -58,8 +58,9 @@ module.exports = new Processor({
             };
             _.each(logAry, function (item, i) {
                 var pv = +item.FePV;
+                var filterPV = +item.filterPV;
                 record.fePv = record.fePv + pv;
-                record.filterPV = record.filterPV + item.filterPV;
+                record.filterPV = record.filterPV + filterPV;
             });
 
             return record;
