@@ -20,10 +20,18 @@ module.exports = new Processor({
         var args = context.args;
         var config = context.config;
 
+        var excludeJobs = [
+            'fcapi_preview_brief',
+            'preview_ban_count',
+            'xiezhenzong_kr_cmdno5_filter_pv',
+            'fengchao_feview_pv_jsonlog_kr_search_json'
+            ];
+        var reg = new RegExp('^' + excludeJobs.join('|'));
         args = _.filter(args, function (arg) {
             var opts = arg.opts;
-            return !/^fcapi_preview_brief|preview_ban_count/.test(opts.jobname);
+            return !reg.test(opts.jobname);
         });
+
         // console.log('[debug]', '[processor:logReader][start]', 'context:', context);
         // console.log('[debug]', '[processor:logReader][start]', 'args:', args);
         // console.log('[debug]', '[processor:logReader][start]', 'config:', config);
