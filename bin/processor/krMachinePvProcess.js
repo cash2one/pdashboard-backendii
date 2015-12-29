@@ -78,12 +78,7 @@ module.exports = new Processor({
 
             _.each(logData, function (item, key) {
                 var doc = parseLog(item);
-                var td = new Date();
-                td.setTime(Number(doc.recordTimestamp));
-                td.setHours(Number(key));
-                td.setMinutes(0);
-                doc.recordTimestamp = td.getTime();
-
+                doc.recordTimestamp = item.timestamp;
                 docs.push(doc);
             });
 
