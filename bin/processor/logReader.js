@@ -25,7 +25,7 @@ module.exports = new Processor({
             'preview_ban_count',
             'xiezhenzong_kr_cmdno5_filter_pv',
             'fengchao_feview_pv_jsonlog_kr_search_json'
-            ];
+        ];
         var reg = new RegExp('^' + excludeJobs.join('|'));
         args = _.filter(args, function (arg) {
             var opts = arg.opts;

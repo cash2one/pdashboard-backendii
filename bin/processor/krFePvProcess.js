@@ -24,12 +24,7 @@ module.exports = new Processor({
         if (jobname.indexOf('fengchao_feview_pv_jsonlog_kr_search') > -1) {
             var isHourly = jobname.indexOf('_hourly') > 0;
 
-            var dataAry = line.split('\t');
-            var attrAry = ['totalPV'];
-
-            for (var i = 0, len = dataAry.length; i < len; i++) {
-                info[attrAry[i]] = dataAry[i];
-            }
+            info = JSON.parse(line);
             info.timestamp = evt.timestamp;
 
             this[isHourly ? 'hourlyLogs' : 'logs'].push(info);
@@ -51,14 +46,10 @@ module.exports = new Processor({
         var pendingJobs = [];
 
         var parseLog = function (logAry) {
-            var record = {};
-            _.each(logAry, function (item, i) {
-                var attrName = item.device.toLowerCase() + '_' + item.seoFlag;
-                record.recordTimestamp = item.timestamp;
-                delete item.timestamp;
-                record[attrName] = item;
-            });
-
+            var record = {
+                recordTimestamp: logAry[0].timestamp,
+                pv: logAry[0].pv
+            };
             return record;
         };
 
