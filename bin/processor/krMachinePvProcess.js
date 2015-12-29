@@ -73,17 +73,8 @@ module.exports = new Processor({
         }
 
         if (this.hourlyLogs.length) {
-            var logData = this.hourlyLogs;
-            var docs = [];
-
-            _.each(logData, function (item, key) {
-                var doc = parseLog(item);
-                doc.recordTimestamp = item.timestamp;
-                docs.push(doc);
-            });
-
             pendingJobs.push(
-                this.updateLogs(db, 'xiezhenzong_kr_cmdno5_filter_pv_hourly', docs)
+                this.updateLogs(db, 'xiezhenzong_kr_cmdno5_filter_pv_hourly', [parseLog(this.hourlyLogs)])
             );
         }
 

@@ -60,17 +60,8 @@ module.exports = new Processor({
         }
 
         if (this.hourlyLogs.length) {
-            var logData = this.hourlyLogs;
-            var docs = [];
-
-            _.each(logData, function (item, key) {
-                var doc = parseLog(item);
-                doc.recordTimestamp = item.timestamp;
-                docs.push(doc);
-            });
-
             pendingJobs.push(
-                this.updateLogs(db, 'fengchao_feview_pv_jsonlog_kr_search_hourly', docs)
+                this.updateLogs(db, 'fengchao_feview_pv_jsonlog_kr_search_hourly', [parseLog(this.hourlyLogs)])
             );
         }
 
