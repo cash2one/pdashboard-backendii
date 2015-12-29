@@ -63,5 +63,22 @@ module.exports = {
             up: ['adpreviewLogReader'],
             down: []
         }
+    },
+    kr: {
+        krLogReader: {
+            up: [],
+            down: [
+                'krFePvProcessor',
+                'krMachinePvProcess'
+            ]
+        },
+        krFePvProcessor: {
+            up: ['krFePvProcess'],
+            down: []
+        },
+        krMachinePvProcessor: {
+            up: ['krMachinePvProcess'],
+            down: []
+        }
     }
 };
