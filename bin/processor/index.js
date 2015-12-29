@@ -18,3 +18,5 @@ exports.adpreviewFcApiDataProcessor = require('./adpreviewFcApiDataProcessor');
 exports.adpreviewBannedDataProcessor = require('./adpreviewBannedDataProcessor');
 // for adpreview
 exports.krLogReader = require('./krLogReader');
+exports.krFePvProcess = require('./krFePvProcess');
+exports.krMachinePvProcess = require('./krMachinePvProcess');
