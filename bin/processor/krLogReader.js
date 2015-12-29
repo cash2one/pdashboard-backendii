@@ -19,19 +19,16 @@ module.exports = new Processor({
         var context = me.getContext();
         var args = context.args;
         var config = context.config;
-
-        var excludeJobs = [
-            'fcapi_preview_brief',
-            'preview_ban_count',
+        var jobnames = [
             'xiezhenzong_kr_cmdno5_filter_pv',
-            'fengchao_feview_pv_jsonlog_kr_search_json'
-        ];
-        var reg = new RegExp('^' + excludeJobs.join('|'));
+            'fengchao_feview_pv_jsonlog_kr_search'
+        ].join('|');
+
+        var reg = new RegExp('^' + jobnames);
         args = _.filter(args, function (arg) {
             var opts = arg.opts;
-            return !reg.test(opts.jobname);
+            return !!reg.test(opts.jobname);
         });
-
         // console.log('[debug]', '[processor:logReader][start]', 'context:', context);
         // console.log('[debug]', '[processor:logReader][start]', 'args:', args);
         // console.log('[debug]', '[processor:logReader][start]', 'config:', config);
