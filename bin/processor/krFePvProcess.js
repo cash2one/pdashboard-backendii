@@ -60,7 +60,7 @@ module.exports = new Processor({
         }
 
         if (this.hourlyLogs.length) {
-            var logData = _.groupBy(this.hourlyLogs, 'hour');
+            var logData = this.hourlyLogs;
             var docs = [];
 
             _.each(logData, function (item, key) {
