@@ -57,7 +57,8 @@ module.exports = new Processor({
                 recordTimestamp: logAry[0].timestamp
             };
             _.each(logAry, function (item, i) {
-                record.fePv = record.fePv + item.FePV;
+                var pv = +item.FePV;
+                record.fePv = record.fePv + pv;
                 record.filterPV = record.filterPV + item.filterPV;
             });
 
