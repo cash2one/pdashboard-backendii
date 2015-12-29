@@ -16,3 +16,5 @@ exports.adpreviewPVDataProcessor = require('./adpreviewPVDataProcessor');
 exports.adpreviewUVDataProcessor = require('./adpreviewUVDataProcessor');
 exports.adpreviewFcApiDataProcessor = require('./adpreviewFcApiDataProcessor');
 exports.adpreviewBannedDataProcessor = require('./adpreviewBannedDataProcessor');
+// for adpreview
+exports.krLogReader = require('./krLogReader');
