@@ -20,7 +20,7 @@ module.exports = new Processor({
         var args = context.args;
         var config = context.config;
         var jobnames = [
-            'xiezhengzong_kr_cmdno5_filter',
+            'xiezhenzong_kr_cmdno5_filter_pv',
             'fengchao_feview_pv_jsonlog_kr_search'
         ].join('|');
 

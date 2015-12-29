@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2015 All rights reserved.
  *
- * @file 处理log平台ID为 xiezhengzong_kr_cmdno5_filter 的 日志
+ * @file 处理log平台ID为 xiezhenzong_kr_cmdno5_filter_pv 的 日志
  * @author Yao tang<tangguangyao@baidu.com>
  */
 /* eslint-env node */
@@ -21,7 +21,7 @@ module.exports = new Processor({
         var info = {};
         var jobname = path.split('/').slice(-4)[0];
 
-        if (jobname.indexOf('xiezhengzong_kr_cmdno5_filter') > -1) {
+        if (jobname.indexOf('xiezhenzong_kr_cmdno5_filter_pv') > -1) {
             var isHourly = jobname.indexOf('_hourly') > 0;
 
             var dataAry = line.split('\t');
@@ -66,7 +66,7 @@ module.exports = new Processor({
 
         if (this.logs.length) {
             pendingJobs.push(
-                this.updateLogs(db, 'xiezhengzong_kr_cmdno5_filter', [parseLog(this.logs)])
+                this.updateLogs(db, 'xiezhenzong_kr_cmdno5_filter_pv', [parseLog(this.logs)])
             );
         }
 
@@ -86,7 +86,7 @@ module.exports = new Processor({
             });
 
             pendingJobs.push(
-                this.updateLogs(db, 'xiezhengzong_kr_cmdno5_filter_hourly', docs)
+                this.updateLogs(db, 'xiezhenzong_kr_cmdno5_filter_pv_hourly', docs)
             );
         }
 

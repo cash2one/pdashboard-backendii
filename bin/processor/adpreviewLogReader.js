@@ -23,9 +23,7 @@ module.exports = new Processor({
             'fengchao_feview_pv_jsonlog_adpreview_json',
             'fengchao_feview_uv_jsonlog_adpreview_json',
             'fcapi_preview_brief',
-            'preview_ban_count',
-            'xiezhengzong_kr_cmdno5_filter',
-            'fengchao_feview_pv_jsonlog_kr_search'
+            'preview_ban_count'
         ].join('|');
 
         var reg = new RegExp('^' + jobnames);
