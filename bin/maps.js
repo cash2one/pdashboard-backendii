@@ -68,17 +68,17 @@ module.exports = {
         krLogReader: {
             up: [],
             down: [
-                'krFePvProcessor',
+                'krFePvProcess',
                 'krMachinePvProcess'
             ]
         },
-        krFePvProcessor: {
-            up: ['krFePvProcess'],
-            down: []
+        krFePvProcess: {
+            up: ['krLogReader'],
+            down: ['krFePvProcess']
         },
-        krMachinePvProcessor: {
-            up: ['krMachinePvProcess'],
-            down: []
+        krMachinePvProcess: {
+            up: ['krLogReader'],
+            down: ['krMachinePvProcess']
         }
     }
 };
