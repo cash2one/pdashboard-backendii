@@ -178,6 +178,22 @@ class StatRespProcessor implements \IUserProcessor {
 $jsonLogs = DQuery::input()
     ->select(extractLogData);
  
+$jsonLogs->filter(array(
+        array('source', '==', 'nirvana_app_liveViewer'),
+        array('target', '==', 'searchAdPreview')
+    ))
+    ->group(array('userid'))
+    ->countEach('*', 'count')
+    ->sort('count', 'desc')
+    ->select(array('userid', 'count'))
+    ->outputAsFile(
+        'fengchao_feview_sorted_uv_jsonlog_adpreview',
+        '凤巢前端实况UV_天_已排序',
+        null,
+        true
+    );
+
+
 // 请求logs
 $reqLog = $jsonLogs
     ->filter(array('target', '==', 'searchAdPreview'))
